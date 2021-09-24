@@ -1,0 +1,18 @@
+.run {
+  cursor: pointer;
+  color: rgb(74, 72, 72);
+  :hover {
+    color: black;
+  }
+}
+
+.scroll-parent {
+  display: flex;
+  .scroll {
+    white-space: nowrap;
+    overflow-y: hidden;
+    .ballScroll {
+      display: inline-block;
+    }
+  }
+}
