@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import {
-  UPDATE_STRIKER_SCORE_AND_OVERS,
   ADD_RUN,
   ADD_EXTRA,
   ADD_WICKET,
@@ -8,6 +7,8 @@ import {
   ADD_NON_STRIKER,
   ADD_BOWLER,
   CREATE_GAME,
+  MOVE_PLAYER,
+  SWAP_STRIKER,
 } from '../../actions/types';
 import { PLAYER_STATE, TEAM_STATE } from '../../states';
 import {
@@ -15,7 +16,8 @@ import {
   swapStriker,
   addWicket,
   addExtra,
-  addLineBreaker,
+  movePlayer,
+  addStriker,
 } from './currentScore.utils';
 
 const INITIAL_STATE = {
@@ -60,15 +62,12 @@ const currentScoreReducer = (state = INITIAL_STATE, action) => {
         secondInnings: { ...secondInnings, name: team2 },
       };
 
-    case UPDATE_STRIKER_SCORE_AND_OVERS:
-      const runs = parseInt(action.payload.runs);
+    case SWAP_STRIKER:
+      const runs = parseInt(action.payload);
+      console.log(balls, balls % 6);
       if (balls % 6 === 0 && (runs === 1 || runs === 3)) return newState;
-      else if (runs === 1 || runs === 3) {
+      else if (runs === 1 || runs === 3 || balls % 6 === 0) {
         swapStriker(newState);
-        return newState;
-      } else if (balls % 6 === 0) {
-        addLineBreaker(newState);
-        //(TODO): Changes the bowler
         return newState;
       } else return newState;
 
@@ -82,13 +81,17 @@ const currentScoreReducer = (state = INITIAL_STATE, action) => {
       return addWicket(state, 'somethingToAddLater');
 
     case ADD_STRIKER:
-      return _.set(newState, 'striker.name', action.payload);
+      return addStriker(newState, action.payload);
 
     case ADD_NON_STRIKER:
-      return _.set(newState, 'nonStriker.name', action.payload);
+      // (TODO)
+      return addStriker(newState, action.payload);
 
     case ADD_BOWLER:
       return _.set(newState, 'bowler.name', action.payload);
+
+    case MOVE_PLAYER:
+      return movePlayer(newState, action.payload);
 
     default:
       return state;

@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import { PLAYER_STATE } from '../../states';
+import { getCurRunRate } from '../../util';
 
 export const addLineBreaker = async (curScore) => {
   await swapStriker(curScore);
@@ -61,6 +63,7 @@ export const addRun = (curScore, run) => {
     totalRuns: totalRuns + run,
     totalBalls: totalBalls + 1 || 0,
     thisOver: [...thisOver, run],
+    currentRunRate: getCurRunRate(totalRuns + run, totalBalls + 1),
   };
 
   const newBowler = {
@@ -142,8 +145,42 @@ export const addExtra = (curScore, extraType, extraRuns) => {
   };
 };
 
-export const swapStriker = (state, _callback) => {
-  const temp = state.striker;
-  _.set(state, 'striker', state.nonStriker);
-  _.set(state, 'nonStriker', temp);
+export const swapStriker = (curScore, _callback) => {
+  const temp = curScore.striker;
+  _.set(curScore, 'striker', curScore.nonStriker);
+  _.set(curScore, 'nonStriker', temp);
+};
+
+export const movePlayer = (curScore, name) => {
+  console.log('UTIL', name);
+  const {
+    striker,
+    nonStriker,
+    firstInnings: { players },
+  } = curScore;
+  if (striker.name === name) {
+    return {
+      ...curScore,
+      striker: { ...PLAYER_STATE },
+      firstInnings: {
+        ...curScore.firstInnings,
+        players: [...players, striker],
+      },
+    };
+  } else if (nonStriker.name === name) {
+    return {
+      ...curScore,
+      firstInnings: {
+        ...curScore.firstInnings,
+        players: [...players, nonStriker],
+      },
+    };
+  }
+
+  return curScore;
+};
+
+export const addStriker = (curScore, name) => {
+  const { striker } = curScore;
+  return { ...curScore, striker: { ...striker, name: name } };
 };

@@ -26,12 +26,22 @@ export const BATSMAN_STRIKER = 'BATSMAN_STRIKER';
 export const SWITCH_STRIKER = 'SWITCH_STRIKER';
 export const SWITCH_TEAM = 'SWITCH_TEAM';
 
-export const UPDATE_STRIKER_SCORE_AND_OVERS = 'UPDATE_STRIKER_SCORE_AND_OVERS';
 // Batsmen status
 export const STRIKER = 'striker';
 export const NON_STRIKER = 'nonstriker';
 export const OUT = 'OUT';
 export const NOT_OUT = 'NOT_OUT';
-export const RETIRED_HURT = 'RETIRED_HURT';
 export const BENCH = 'BENCH';
 export const SWAP_STRIKER = 'SWAP_STRIKER';
+
+export const WICKET_MODAL = 'WICKET_MODAL';
+export const MOVE_PLAYER = 'MOVE_PLAYER';
+
+// WICKET TYPE
+export const BOWLED = 'BOWLED';
+export const CAUGHT_OUT = 'CAUGHT_OUT';
+export const HIT_WICKET = 'HIT_WICKET';
+export const LBW = 'LEG_BEFORE_WICKET';
+export const RUN_OUT = 'RUN_OUT';
+export const STUMP_OUT = 'STUMP_OUT';
+export const RETIRED_HURT = 'RETIRED_HURT';

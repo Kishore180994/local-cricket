@@ -16,3 +16,44 @@
     }
   }
 }
+
+.wickets {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+  .header {
+    margin: 1rem 1rem;
+    padding: 1rem 0;
+    font-size: large;
+    text-align: center;
+    border-top: 1px solid rgb(213, 207, 207);
+    border-bottom: 1px solid rgb(213, 207, 207);
+  }
+
+  .buttons {
+    position: relative;
+    border-bottom: 1px solid rgb(213, 207, 207);
+    padding-bottom: 1rem;
+    margin: 0rem 1rem;
+    .buttons-container {
+      width: 100%;
+      display: flex;
+      position: relative;
+      justify-content: space-evenly;
+      flex-wrap: wrap;
+      row-gap: 10px;
+      .custom {
+        color: red;
+        background-color: transparent;
+        border: 1px solid red;
+        margin: 0 10px;
+      }
+      .orange {
+        color: green;
+        background-color: transparent;
+        border: 1px solid green;
+        margin: 0 10px;
+      }
+    }
+  }
+}

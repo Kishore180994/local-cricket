@@ -26,12 +26,13 @@ export const TEAM_STATE = {
   toss: false,
   choose: '',
   name: '',
-  players: { ...PLAYER_STATE },
+  players: [],
   stats: {
     totalRuns: 0,
     totalWickets: 0,
     totalBalls: 0,
     thisOver: [],
+    currentRunRate: 0,
   },
 };
 

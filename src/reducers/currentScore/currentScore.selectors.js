@@ -47,6 +47,11 @@ export const selectThisInnings = createSelector(
   (stats) => stats.thisOver
 );
 
+export const selectCurrentRunRate = createSelector(
+  [selectStats],
+  (stats) => stats.currentRunRate
+);
+
 export const selectSettings = createSelector(
   [selectCurrentScore],
   (curScore) => curScore.settings
@@ -69,4 +74,9 @@ export const selectIsByesEnabled = createSelector(
 export const selectIsLegByesEnabled = createSelector(
   [selectSettings],
   (settings) => settings.legbyes
+);
+
+export const selectOvers = createSelector(
+  [selectSettings],
+  (settings) => settings.overs
 );
