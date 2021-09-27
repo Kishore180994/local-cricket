@@ -16,6 +16,7 @@ import {
   WICKET_MODAL,
   CREATE_GAME,
   MOVE_PLAYER,
+  SWAP_STRIKER_FORCE,
 } from './types';
 
 export const signIn = (userId) => {
@@ -111,6 +112,12 @@ export const swapStriker = (runs) => async (dispatch) => {
   dispatch({
     type: SWAP_STRIKER,
     payload: runs,
+  });
+};
+
+export const swapStrikerForce = () => async (dispatch) => {
+  dispatch({
+    type: SWAP_STRIKER_FORCE,
   });
 };
 

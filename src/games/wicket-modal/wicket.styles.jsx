@@ -6,6 +6,11 @@ export const Content = styled.div`
   & > * {
     margin: 0.5rem 1rem;
   }
+
+  .label {
+    text-align: center;
+    font-size: small;
+  }
 `;
 
 export const BastmanHeader = styled.div`
@@ -65,16 +70,21 @@ export const StatsHeader = styled.div`
 
 export const NextBatsman = styled.div`
   display: flex;
+  flex-direction: column;
   width: 100%;
-  form {
-    width: 41%;
-    .input {
-      width: 100%;
+  .container {
+    display: flex;
+    form {
+      width: 65%;
+      .input {
+        width: 100%;
+      }
     }
   }
 
   .select-side {
-    width: 25%;
+    display: flex;
+    width: 96%;
   }
 
   .label {
@@ -85,8 +95,15 @@ export const NextBatsman = styled.div`
 `;
 
 export const Header = styled.div`
-  font-size: 2rem;
+  font-size: 3vw;
   color: black;
   -webkit-text-stroke: 2px red;
   -webkit-text-fill-color: white;
 `;
+
+export const RadioWrapper = styled.div`
+  display: flex;
+  justify-content: space-around;
+`;
+export const RadioButton = styled.input``;
+export const RadioLabel = styled.label``;

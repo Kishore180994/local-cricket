@@ -145,14 +145,14 @@ export const addExtra = (curScore, extraType, extraRuns) => {
   };
 };
 
-export const swapStriker = (curScore, _callback) => {
+export const swapStriker = (curScore) => {
   const temp = curScore.striker;
   _.set(curScore, 'striker', curScore.nonStriker);
   _.set(curScore, 'nonStriker', temp);
+  return curScore;
 };
 
 export const movePlayer = (curScore, name) => {
-  console.log('UTIL', name);
   const {
     striker,
     nonStriker,
@@ -170,6 +170,7 @@ export const movePlayer = (curScore, name) => {
   } else if (nonStriker.name === name) {
     return {
       ...curScore,
+      nonStriker: { ...PLAYER_STATE },
       firstInnings: {
         ...curScore.firstInnings,
         players: [...players, nonStriker],
@@ -183,4 +184,9 @@ export const movePlayer = (curScore, name) => {
 export const addStriker = (curScore, name) => {
   const { striker } = curScore;
   return { ...curScore, striker: { ...striker, name: name } };
+};
+
+export const addNonStriker = (curScore, name) => {
+  const { nonStriker } = curScore;
+  return { ...curScore, nonStriker: { ...nonStriker, name: name } };
 };

@@ -9,6 +9,7 @@ import {
   CREATE_GAME,
   MOVE_PLAYER,
   SWAP_STRIKER,
+  SWAP_STRIKER_FORCE,
 } from '../../actions/types';
 import { PLAYER_STATE, TEAM_STATE } from '../../states';
 import {
@@ -18,6 +19,7 @@ import {
   addExtra,
   movePlayer,
   addStriker,
+  addNonStriker,
 } from './currentScore.utils';
 
 const INITIAL_STATE = {
@@ -64,12 +66,14 @@ const currentScoreReducer = (state = INITIAL_STATE, action) => {
 
     case SWAP_STRIKER:
       const runs = parseInt(action.payload);
-      console.log(balls, balls % 6);
       if (balls % 6 === 0 && (runs === 1 || runs === 3)) return newState;
       else if (runs === 1 || runs === 3 || balls % 6 === 0) {
         swapStriker(newState);
         return newState;
       } else return newState;
+
+    case SWAP_STRIKER_FORCE:
+      return swapStriker(newState);
 
     case ADD_RUN:
       return addRun(state, action.payload);
@@ -85,7 +89,7 @@ const currentScoreReducer = (state = INITIAL_STATE, action) => {
 
     case ADD_NON_STRIKER:
       // (TODO)
-      return addStriker(newState, action.payload);
+      return addNonStriker(newState, action.payload);
 
     case ADD_BOWLER:
       return _.set(newState, 'bowler.name', action.payload);

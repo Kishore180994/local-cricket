@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import styled, { keyframes } from 'styled-components';
+import { device } from './util';
 
 const Perimeter = styled.div`
   position: fixed;
@@ -13,6 +14,10 @@ const Perimeter = styled.div`
   overflow: hidden;
   background: rgba(0, 0, 0, 0.6);
   z-index: 999;
+  @media ${device.mobileXS} {
+    width: 100%;
+    height: 100%;
+  }
 `;
 
 const parentAnimation = keyframes`
@@ -25,6 +30,8 @@ const parentAnimation = keyframes`
 `;
 
 const Parent = styled.div`
+  /* width: 75%;
+  height: 50%; */
   width: 50%;
   background-color: white;
   position: absolute;
@@ -33,6 +40,20 @@ const Parent = styled.div`
   transform: translate(-50%, -50%);
   box-shadow: 0 10px 20px lightblue;
   border-radius: 2%;
+  @media ${device.mobileXS} {
+    width: 100%;
+  }
+  @media ${device.mobileS} {
+    width: 100%;
+  }
+
+  @media ${device.mobileM} {
+    width: 100%;
+  }
+
+  @media ${device.mobileL} {
+    width: 65%;
+  }
 `;
 
 const ModalWindow = styled.div`
@@ -47,6 +68,12 @@ const ModalWindow = styled.div`
     margin: 10px 0;
     text-align: center;
     font-weight: bolder;
+    @media ${device.mobileXS} {
+      margin: 5px 0;
+    }
+  }
+  .content {
+    overflow: hidden;
   }
   .actions {
     margin-top: 10px;
@@ -66,7 +93,7 @@ class Modal extends React.Component {
         }}>
         <Parent>
           <ModalWindow onClick={(e) => e.stopPropagation()}>
-            <div className='header custom-height'>{header || 'Header'}</div>
+            <div className='custom-height'>{header || 'Header'}</div>
             <div className='content'>{content || 'Content'}</div>
             <div className='actions'>{actions}</div>
           </ModalWindow>

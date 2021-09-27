@@ -33,15 +33,16 @@ export const OUT = 'OUT';
 export const NOT_OUT = 'NOT_OUT';
 export const BENCH = 'BENCH';
 export const SWAP_STRIKER = 'SWAP_STRIKER';
+export const SWAP_STRIKER_FORCE = 'SWAP_STRIKER_FORCE';
 
 export const WICKET_MODAL = 'WICKET_MODAL';
 export const MOVE_PLAYER = 'MOVE_PLAYER';
 
 // WICKET TYPE
-export const BOWLED = 'BOWLED';
-export const CAUGHT_OUT = 'CAUGHT_OUT';
-export const HIT_WICKET = 'HIT_WICKET';
-export const LBW = 'LEG_BEFORE_WICKET';
-export const RUN_OUT = 'RUN_OUT';
-export const STUMP_OUT = 'STUMP_OUT';
-export const RETIRED_HURT = 'RETIRED_HURT';
+export const BOWLED = 'BOWLED!!!';
+export const CAUGHT_OUT = 'CAUGHT OUT!!!';
+export const HIT_WICKET = 'HIT WICKET!!!';
+export const LBW = 'L.B.W!!!';
+export const RUN_OUT = 'RUN OUT!!!';
+export const STUMP_OUT = 'STUMP OUT!!!';
+export const RETIRED_HURT = 'RETIRED HURT!!!';
