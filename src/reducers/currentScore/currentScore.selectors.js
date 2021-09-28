@@ -12,6 +12,11 @@ export const selectStriker = createSelector(
   (curScore) => curScore.striker
 );
 
+export const selectMatchId = createSelector(
+  [selectCurrentScore],
+  (curScore) => curScore.matchId
+);
+
 export const selectNonStriker = createSelector(
   [selectCurrentScore],
   (curScore) => curScore.nonStriker

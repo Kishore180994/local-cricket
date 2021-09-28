@@ -72,7 +72,7 @@ const ModalWindow = styled.div`
       margin: 5px 0;
     }
   }
-  .content {
+  .modal-content {
     overflow: hidden;
   }
   .actions {
@@ -94,7 +94,7 @@ class Modal extends React.Component {
         <Parent>
           <ModalWindow onClick={(e) => e.stopPropagation()}>
             <div className='custom-height'>{header || 'Header'}</div>
-            <div className='content'>{content || 'Content'}</div>
+            <div className='modal-content'>{content || 'Content'}</div>
             <div className='actions'>{actions}</div>
           </ModalWindow>
         </Parent>

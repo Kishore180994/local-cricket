@@ -17,6 +17,8 @@ import {
   CREATE_GAME,
   MOVE_PLAYER,
   SWAP_STRIKER_FORCE,
+  OUT_BATSMAN,
+  BOWLER_MODAL,
 } from './types';
 
 export const signIn = (userId) => {
@@ -160,5 +162,19 @@ export const setWicketModal = (value, type) => async (dispatch) => {
   dispatch({
     type: WICKET_MODAL,
     payload: { value, type },
+  });
+};
+
+export const setBowlerModal = (value) => async (dispatch) => {
+  dispatch({
+    type: BOWLER_MODAL,
+    payload: value,
+  });
+};
+
+export const setBatsmanOut = (id) => async (dispatch) => {
+  dispatch({
+    type: OUT_BATSMAN,
+    payload: id,
   });
 };

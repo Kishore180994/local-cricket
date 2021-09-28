@@ -8,6 +8,7 @@ import {
   setSelected,
   setWicketModal,
   swapStriker,
+  setBowlerModal,
 } from '../../actions';
 import { Link } from 'react-router-dom';
 import { createStructuredSelector } from 'reselect';
@@ -29,7 +30,10 @@ import {
   selectThisInnings,
   selectTotalBallsPlayed,
 } from '../../reducers/currentScore/currentScore.selectors';
-import { selectWicketModalHiddenValue } from '../../reducers/modal/modal.selectors';
+import {
+  selectWicketModalHiddenValue,
+  selectBowlerModalHiddenValue,
+} from '../../reducers/modal/modal.selectors';
 import WicketModal from '../wicket-modal/wicket.modal';
 import { renderExtras, renderIcons, updateScroll } from './game-play.utils';
 import PlayScoreCard from '../score-card/play-score-card.component';
@@ -42,6 +46,7 @@ import {
   RUN_OUT,
   STUMP_OUT,
 } from '../../actions/types';
+import BowlerModal from '../bowler-modal/bowler-modal.componene';
 
 class GamePlay extends Component {
   constructor() {
@@ -61,6 +66,7 @@ class GamePlay extends Component {
     this.props.addScore(run).then(() => {
       const overEnd = this.props.totalBallsPlayed % 6;
       if (!overEnd || run === 1 || run === 3) this.props.swapStriker(run);
+      if (!overEnd) this.props.setBowlerModal(false);
     });
     updateScroll(this.myRef);
   };
@@ -171,10 +177,11 @@ class GamePlay extends Component {
   }
 
   render() {
-    const { isWicketModalHidden } = this.props;
+    const { isWicketModalHidden, isBowlerModalHidden } = this.props;
     return (
       <React.Fragment>
         {isWicketModalHidden ? null : <WicketModal />}
+        {isBowlerModalHidden ? null : <BowlerModal />}
         <div>
           {this.renderBalls()}
           <PlayScoreCard />
@@ -196,6 +203,7 @@ class GamePlay extends Component {
 
 const mapStateToProps = createStructuredSelector({
   isWicketModalHidden: selectWicketModalHiddenValue,
+  isBowlerModalHidden: selectBowlerModalHiddenValue,
   isWidesEnabled: selectIsWidesEnabled,
   isNoBallEnabled: selectIsNoBallEnabled,
   isByesEnabled: selectIsByesEnabled,
@@ -219,4 +227,5 @@ export default connect(mapStateToProps, {
   setSelected,
   setWicketModal,
   swapStriker,
+  setBowlerModal,
 })(GamePlay);

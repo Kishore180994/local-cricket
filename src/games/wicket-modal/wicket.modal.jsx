@@ -9,14 +9,18 @@ import {
   setWicketModal,
   swapStriker,
   swapStrikerForce,
+  setBatsmanOut,
 } from '../../actions';
 import { createStructuredSelector } from 'reselect';
 
 import {
+  selectBastmanWhoGotOut,
   selectWicketModalHiddenValue,
   selectWicketType,
 } from '../../reducers/modal/modal.selectors';
 import {
+  selectBattingTeamScore,
+  selectBattingTeamWickets,
   selectNonStriker,
   selectStriker,
 } from '../../reducers/currentScore/currentScore.selectors';
@@ -38,6 +42,7 @@ import {
   RUN_OUT,
   RETIRED_HURT,
 } from '../../actions/types';
+import { getStrikeRate } from '../../util';
 
 class WicketModal extends React.Component {
   state = {
@@ -67,6 +72,7 @@ class WicketModal extends React.Component {
     if (this.state.chooseNextBatsman) {
       switch (wicketType) {
         case CAUGHT_OUT:
+          this.setState({ currentBatsmanWhoGotOut: striker });
           if (chooseNextBatsmanSide) {
             if (chooseNextBatsmanSide === 'striker') {
               // Move the current striker to firstInnings players
@@ -82,6 +88,7 @@ class WicketModal extends React.Component {
             }
             await addWicket();
             setWicketModal(true);
+            setBatsmanOut(null);
           } else {
             alert('Choose the new Batsman side.');
           }
@@ -91,6 +98,7 @@ class WicketModal extends React.Component {
             const outRole =
               runOutCheckedValue === striker.name ? striker : nonStriker;
             // Move the player who got out to the pavilion
+            this.setState({ currentBatsmanWhoGotOut: outRole });
             await movePlayer(outRole.name);
             if (chooseNextBatsmanSide) {
               if (
@@ -119,6 +127,7 @@ class WicketModal extends React.Component {
               }
               await addWicket();
               setWicketModal(true);
+              setBatsmanOut(null);
             } else {
               alert('Please select where you want to place the new batsman.');
             }
@@ -134,6 +143,7 @@ class WicketModal extends React.Component {
           if (runOutCheckedValue) {
             const outRole =
               runOutCheckedValue === striker.name ? striker : nonStriker;
+            this.setState({ currentBatsmanWhoGotOut: outRole });
             await movePlayer(outRole.name);
             if (outRole.name === striker.name)
               await addStriker(chooseNextBatsman);
@@ -141,6 +151,7 @@ class WicketModal extends React.Component {
               await addNonStriker(chooseNextBatsman);
             }
             setWicketModal(true);
+            setBatsmanOut(null);
           } else {
             alert('Please select the player who got retired hurt!!');
           }
@@ -149,19 +160,24 @@ class WicketModal extends React.Component {
         case HIT_WICKET:
         case LBW:
         case STUMP_OUT:
+          this.setState({ currentBatsmanWhoGotOut: striker });
           await movePlayer(striker.name);
           await addStriker(chooseNextBatsman);
           await addWicket();
           setWicketModal(true);
+          setBatsmanOut(null);
           break;
         default:
+          this.setState({ currentBatsmanWhoGotOut: striker });
           await addWicket();
           await swapStriker();
           this.setState({ chooseNextBatsman: '' });
           setWicketModal(true);
+          setBatsmanOut(null);
           break;
       }
       await swapStriker();
+      await setBatsmanOut(null);
     } else {
       alert('Please input the next batsman');
     }
@@ -188,8 +204,13 @@ class WicketModal extends React.Component {
     else return this.renderUnpredictedContent(wicketType);
   };
 
-  handleChecked = (e) => {
+  handleChecked = async (e) => {
+    const { striker, nonStriker, setBatsmanOut } = this.props;
     this.setState({ runOutCheckedValue: e.target.textContent });
+
+    let outObject =
+      e.target.textContent === striker.name ? striker : nonStriker;
+    setBatsmanOut(outObject);
   };
 
   setBattingSide = (e, val) => {
@@ -231,91 +252,102 @@ class WicketModal extends React.Component {
     );
   };
 
-  renderCommonContent = (wicketType) => (
-    <React.Fragment>
-      <BastmanHeader>
-        <span className='name'>Bastman</span>
-        <span className='score'>
-          <span className='runs'>65</span>
-          <span className='balls'>(12)</span>
-        </span>
-        <span className='bowler'>
-          <span className='wicket-type'>b</span>
-          <span className='bowler-name'>Bowler</span>
-        </span>
-        <span className='fow'>fow: 65/1</span>
-      </BastmanHeader>
-      <StatsHeader>
-        <span className='boundaries'>
-          <span className='fours'>Fours: 6</span>
-          <span className='sixes'>Sixes: 8</span>
-        </span>
-        <span>SR: 108</span>
-      </StatsHeader>
-      <NextBatsman>
-        <div className='ui divider'></div>
-        {wicketType === RUN_OUT ? (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-evenly',
-              flexWrap: 'wrap',
-              marginBottom: '1em',
-              marginRight: '1em',
-            }}>
-            <label>How many runs had been scored on this ball?</label>
-            <div className='ui small input'>
-              <input
-                type='text'
-                value={this.state.runsScoredOnRunOut}
-                placeholder='runs(default: 0)'
-                onChange={(e) =>
-                  this.setState({ runsScoredOnRunOut: e.target.value })
-                }
-                required
-              />
+  renderCommonContent = (wicketType) => {
+    let { batsManWhoGotOut, striker } = this.props;
+    if (!batsManWhoGotOut) batsManWhoGotOut = striker;
+    const {
+      name,
+      batting: { runs, balls, fours, sixes },
+    } = batsManWhoGotOut;
+    const { teamScore, teamWickets } = this.props;
+    return (
+      <React.Fragment>
+        <BastmanHeader>
+          <span className='name'>{name}</span>
+          <span className='score'>
+            <span className='runs'>{runs}</span>
+            <span className='balls'>({balls})</span>
+          </span>
+          <span className='bowler'>
+            <span className='wicket-type'>b</span>
+            <span className='bowler-name'>Bowler</span>
+          </span>
+          <span className='fow'>
+            fow: {teamScore}/{teamWickets}
+          </span>
+        </BastmanHeader>
+        <StatsHeader>
+          <span className='boundaries'>
+            <span className='fours'>Fours: {fours}</span>
+            <span className='sixes'>Sixes: {sixes}</span>
+          </span>
+          <span>SR: {getStrikeRate(runs, balls)}</span>
+        </StatsHeader>
+        <NextBatsman>
+          <div className='ui divider'></div>
+          {wicketType === RUN_OUT ? (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-evenly',
+                flexWrap: 'wrap',
+                marginBottom: '1em',
+                marginRight: '1em',
+              }}>
+              <label>How many runs had been scored on this ball?</label>
+              <div className='ui small input'>
+                <input
+                  type='text'
+                  value={this.state.runsScoredOnRunOut}
+                  placeholder='runs(default: 0)'
+                  onChange={(e) =>
+                    this.setState({ runsScoredOnRunOut: e.target.value })
+                  }
+                  required
+                />
+              </div>
             </div>
-          </div>
-        ) : null}
-        <span className='container'>
-          <div className='ui black ribbon label'>Next Batsman</div>
-          <form id='myform'>
-            <div className='ui input'>
-              <input
-                type='text'
-                placeholder='Next Batsman'
-                value={this.state.chooseNextBatsman}
-                onChange={(e) => {
-                  e.stopPropagation();
-                  this.setState({ chooseNextBatsman: e.target.value });
-                }}
-                required
-              />
-            </div>
-          </form>
-        </span>
-        <div className='ui divider'></div>
-        {wicketType === CAUGHT_OUT || wicketType === RUN_OUT ? (
-          <React.Fragment>
-            <label>Where do you want to place the new batsman?</label>
-            <div className='ui buttons select-side'>
-              <button
-                className='ui button'
-                onClick={(e) => this.setBattingSide(e, 'striker')}>
-                Striker end
-              </button>
-              <div className='or'></div>
-              <button
-                className='ui button'
-                onClick={(e) => this.setBattingSide(e, 'nonStriker')}>
-                Non-Striker end
-              </button>
-            </div>
-          </React.Fragment>
-        ) : null}
-      </NextBatsman>
-    </React.Fragment>
-  );
+          ) : null}
+          <span className='container'>
+            <div className='ui black ribbon label'>Next Batsman</div>
+            <form id='myform'>
+              <div className='ui input'>
+                <input
+                  type='text'
+                  placeholder='Next Batsman'
+                  value={this.state.chooseNextBatsman}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    this.setState({ chooseNextBatsman: e.target.value });
+                  }}
+                  required
+                />
+              </div>
+            </form>
+          </span>
+          <div className='ui divider'></div>
+          {wicketType === CAUGHT_OUT || wicketType === RUN_OUT ? (
+            <React.Fragment>
+              <label>Where do you want to place the new batsman?</label>
+              <div className='ui buttons select-side'>
+                <button
+                  className='ui button'
+                  onClick={(e) => this.setBattingSide(e, 'striker')}>
+                  Striker end
+                </button>
+                <div className='or'></div>
+                <button
+                  className='ui button'
+                  onClick={(e) => this.setBattingSide(e, 'nonStriker')}>
+                  Non-Striker end
+                </button>
+              </div>
+            </React.Fragment>
+          ) : null}
+        </NextBatsman>
+      </React.Fragment>
+    );
+  };
 
   renderPredictedContent = (wicketType) => (
     <Content className='ui divided middle selection list'>
@@ -345,6 +377,7 @@ class WicketModal extends React.Component {
         onClick={(e) => {
           e.preventDefault();
           this.props.setWicketModal(true);
+          this.props.setBatsmanOut(null);
         }}>
         Cancel
       </button>
@@ -375,6 +408,9 @@ const mapStateToProps = createStructuredSelector({
   wicketType: selectWicketType,
   striker: selectStriker,
   nonStriker: selectNonStriker,
+  teamScore: selectBattingTeamScore,
+  teamWickets: selectBattingTeamWickets,
+  batsManWhoGotOut: selectBastmanWhoGotOut,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -393,6 +429,7 @@ const mapDispatchToProps = (dispatch) => ({
   addStriker: (name) => dispatch(addStriker(name)),
   addNonStriker: (name) => dispatch(addNonStriker(name)),
   addWicket: () => dispatch(addWicket()),
+  setBatsmanOut: (name) => dispatch(setBatsmanOut(name)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(WicketModal);

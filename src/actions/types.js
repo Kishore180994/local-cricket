@@ -36,6 +36,7 @@ export const SWAP_STRIKER = 'SWAP_STRIKER';
 export const SWAP_STRIKER_FORCE = 'SWAP_STRIKER_FORCE';
 
 export const WICKET_MODAL = 'WICKET_MODAL';
+export const BOWLER_MODAL = 'BOWLER_MODAL';
 export const MOVE_PLAYER = 'MOVE_PLAYER';
 
 // WICKET TYPE
@@ -46,3 +47,5 @@ export const LBW = 'L.B.W!!!';
 export const RUN_OUT = 'RUN OUT!!!';
 export const STUMP_OUT = 'STUMP OUT!!!';
 export const RETIRED_HURT = 'RETIRED HURT!!!';
+
+export const OUT_BATSMAN = 'OUT_BATSMAN';
