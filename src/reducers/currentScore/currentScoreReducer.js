@@ -20,6 +20,8 @@ import {
   movePlayer,
   addStriker,
   addNonStriker,
+  matchInit,
+  getCurrentBattingTeam,
 } from './currentScore.utils';
 
 const INITIAL_STATE = {
@@ -27,8 +29,10 @@ const INITIAL_STATE = {
   striker: JSON.parse(JSON.stringify({ ...PLAYER_STATE })),
   nonStriker: JSON.parse(JSON.stringify({ ...PLAYER_STATE })),
   bowler: JSON.parse(JSON.stringify({ ...PLAYER_STATE })),
-  firstInnings: JSON.parse(JSON.stringify(TEAM_STATE)),
-  secondInnings: JSON.parse(JSON.stringify(TEAM_STATE)),
+  team1: JSON.parse(JSON.stringify(TEAM_STATE)),
+  team2: JSON.parse(JSON.stringify(TEAM_STATE)),
+  // firstInnings: JSON.parse(JSON.stringify(TEAM_STATE)),
+  // secondInnings: JSON.parse(JSON.stringify(TEAM_STATE)),
   settings: {
     overs: 0,
     widesPerRun: 0,
@@ -40,32 +44,14 @@ const INITIAL_STATE = {
 
 const currentScoreReducer = (state = INITIAL_STATE, action) => {
   const newState = _.clone(state);
-  const balls = newState.firstInnings.stats.totalBalls;
-  const { firstInnings, secondInnings } = newState;
   switch (action.type) {
     case CREATE_GAME:
-      const {
-        byes,
-        choose,
-        legbyes,
-        matchId,
-        noball,
-        overs,
-        team1,
-        team2,
-        toss,
-        wpr,
-      } = action.payload;
-      return {
-        ...newState,
-        matchId,
-        settings: { overs, noball, byes, legbyes, widesPerRun: wpr },
-        firstInnings: { ...firstInnings, name: team1 },
-        secondInnings: { ...secondInnings, name: team2 },
-      };
+      return matchInit(newState, action.payload);
 
     case SWAP_STRIKER:
       const runs = parseInt(action.payload);
+      const currentBattingTeam = getCurrentBattingTeam(newState);
+      const balls = currentBattingTeam.stats.totalBalls;
       if (balls % 6 === 0 && (runs === 1 || runs === 3)) return newState;
       else if (runs === 1 || runs === 3 || balls % 6 === 0) {
         swapStriker(newState);

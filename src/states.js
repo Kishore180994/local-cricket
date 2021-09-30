@@ -1,6 +1,7 @@
 import { BENCH } from './actions/types';
 
 export const PLAYER_STATE = {
+  playerId: '',
   name: '',
   bat: BENCH,
   bowl: false,
@@ -26,6 +27,8 @@ export const TEAM_STATE = {
   toss: false,
   choose: '',
   name: '',
+  isBatting: false,
+  objName: '',
   players: [],
   stats: {
     totalRuns: 0,

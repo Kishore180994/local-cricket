@@ -28,6 +28,7 @@ const MatchSettings = ({
           className='item'
           name='wpr'
           type='number'
+          value='1'
           label='Number of wides for 1 run'
           component={renderInput}
         />
@@ -50,8 +51,8 @@ const MatchSettings = ({
             name='wides'
             type='checkbox'
             label='Wides'
-            val={isWidesSelected}
             change
+            val={isWidesSelected}
             showOptions={showOptions}
             component={renderCheck}
           />

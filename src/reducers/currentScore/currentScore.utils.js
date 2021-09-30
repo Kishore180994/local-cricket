@@ -2,33 +2,84 @@ import _ from 'lodash';
 import { PLAYER_STATE } from '../../states';
 import { getCurRunRate } from '../../util';
 
+export const matchInit = (curScore, formValues) => {
+  const { team1, team2 } = curScore;
+  const {
+    byes,
+    choose,
+    legbyes,
+    matchId,
+    noball,
+    overs,
+    firstTeam,
+    secondTeam,
+    toss,
+    wpr,
+  } = formValues;
+  let isTeam1Batting = false;
+  if (toss === 'firstTeam') {
+    isTeam1Batting = choose.toLowerCase() === 'batting' ? true : false;
+  }
+
+  if (toss === 'secondTeam') {
+    isTeam1Batting = choose.toLowerCase() === 'batting' ? false : true;
+  }
+  return {
+    ...curScore,
+    matchId,
+    settings: { overs, noball, byes, legbyes, widesPerRun: wpr },
+    team1: {
+      ...team1,
+      objName: 'team1',
+      name: firstTeam,
+      toss: toss === 'firstTeam' ? true : false,
+      choose: toss === 'firstTeam' ? choose : '',
+      isBatting: isTeam1Batting,
+    },
+    team2: {
+      ...team2,
+      objName: 'team2',
+      name: secondTeam,
+      toss: toss === 'secondTeam' ? true : false,
+      choose: toss === 'secondTeam' ? choose : '',
+      isBatting: !isTeam1Batting,
+    },
+  };
+};
+
+export const getCurrentBattingTeam = (curScore) => {
+  const { team1, team2 } = curScore;
+  return team1.isBatting ? team1 : team2;
+};
+
 export const addLineBreaker = async (curScore) => {
   await swapStriker(curScore);
-  const { firstInnings } = curScore;
+  const currentBattingTeam = getCurrentBattingTeam(curScore);
   const {
     stats: { thisOver },
-  } = firstInnings;
+  } = currentBattingTeam;
 
   const newState = {
-    ...firstInnings.stats,
+    ...currentBattingTeam.stats,
     thisOver: [...thisOver, '|'],
   };
 
   return {
     ...curScore,
-    firstInnings: {
-      ...firstInnings,
+    [currentBattingTeam.objName]: {
+      ...currentBattingTeam,
       stats: newState,
     },
   };
 };
 
 export const addRun = (curScore, run) => {
+  const currentBattingTeam = getCurrentBattingTeam(curScore);
   const {
     striker: {
       batting: { runs, balls, ones, twos, threes, fours, sixes },
     },
-    firstInnings: {
+    [currentBattingTeam.objName]: {
       stats: { thisOver, totalBalls, totalRuns },
     },
     bowler: { bowling },
@@ -59,7 +110,7 @@ export const addRun = (curScore, run) => {
   };
 
   const newStats = {
-    ...curScore.firstInnings.stats,
+    ...currentBattingTeam.stats,
     totalRuns: totalRuns + run,
     totalBalls: totalBalls + 1 || 0,
     thisOver: [...thisOver, run],
@@ -73,21 +124,22 @@ export const addRun = (curScore, run) => {
   return {
     ...curScore,
     striker: newStriker,
-    firstInnings: { ...curScore.firstInnings, stats: newStats },
+    [currentBattingTeam.objName]: { ...currentBattingTeam, stats: newStats },
     bowler: newBowler,
   };
 };
 
 export const addWicket = (curScore, wicket) => {
-  const { firstInnings, bowler } = curScore;
+  const currentBattingTeam = getCurrentBattingTeam(curScore);
+  const { bowler } = curScore;
   const {
     stats: { thisOver, totalBalls, totalWickets },
-  } = firstInnings;
+  } = currentBattingTeam;
   const {
     bowling: { balls, wickets },
   } = bowler;
   const newStats = {
-    ...firstInnings.stats,
+    ...currentBattingTeam.stats,
     totalBalls: totalBalls + 1 || 0,
     thisOver: [...thisOver, 'W'],
     totalWickets: totalWickets + 1 || 1,
@@ -104,16 +156,17 @@ export const addWicket = (curScore, wicket) => {
 
   return {
     ...curScore,
-    firstInnings: { ...firstInnings, stats: newStats },
+    [currentBattingTeam.objName]: { ...currentBattingTeam, stats: newStats },
     bowler: newBowler,
   };
 };
 
 export const addExtra = (curScore, extraType, extraRuns) => {
-  const { firstInnings, bowler } = curScore;
+  const currentBattingTeam = getCurrentBattingTeam(curScore);
+  const { bowler } = curScore;
   const {
     stats: { thisOver, totalRuns },
-  } = firstInnings;
+  } = currentBattingTeam;
   const {
     bowling: { runs },
   } = bowler;
@@ -122,7 +175,7 @@ export const addExtra = (curScore, extraType, extraRuns) => {
     extraType === 'b' || extraType === 'lb' ? extraRuns : extraRuns - 1;
 
   const newStats = {
-    ...firstInnings.stats,
+    ...currentBattingTeam.stats,
     thisOver: [...thisOver, extraType + extraRunsRevised],
     totalRuns: totalRuns + extraRuns,
   };
@@ -134,8 +187,8 @@ export const addExtra = (curScore, extraType, extraRuns) => {
 
   return {
     ...curScore,
-    firstInnings: {
-      ...firstInnings,
+    [currentBattingTeam.objName]: {
+      ...currentBattingTeam,
       stats: newStats,
     },
     bowler: {
@@ -153,17 +206,18 @@ export const swapStriker = (curScore) => {
 };
 
 export const movePlayer = (curScore, name) => {
+  const currentBattingTeam = getCurrentBattingTeam(curScore);
   const {
     striker,
     nonStriker,
-    firstInnings: { players },
+    [currentBattingTeam.objName]: { players },
   } = curScore;
   if (striker.name === name) {
     return {
       ...curScore,
       striker: { ...PLAYER_STATE },
-      firstInnings: {
-        ...curScore.firstInnings,
+      [currentBattingTeam.objName]: {
+        ...currentBattingTeam,
         players: [...players, striker],
       },
     };
@@ -171,8 +225,8 @@ export const movePlayer = (curScore, name) => {
     return {
       ...curScore,
       nonStriker: { ...PLAYER_STATE },
-      firstInnings: {
-        ...curScore.firstInnings,
+      [currentBattingTeam.objName]: {
+        ...currentBattingTeam,
         players: [...players, nonStriker],
       },
     };

@@ -28,10 +28,7 @@ function App({ matchId }) {
               render={() => (matchId ? <GamePlay /> : <GameCreate />)}
             />
             <Route path='/games/view/:id' exact component={GameView} />
-            <Route
-              path='/games/play/:id'
-              render={() => (matchId ? <GamePlay /> : <HomePage />)}
-            />
+            <Route path='/games/play/:id' component={GamePlay} />
             <Route path='/games/scorecard/:id' component={FullScoreCard} />
           </Switch>
         </div>

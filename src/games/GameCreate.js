@@ -81,8 +81,9 @@ class GameCreate extends Component {
 
   validate = (formValues) => {
     const errors = {};
-    if (!formValues.team1) errors.team1 = 'You must enter Team1 Name.';
-    if (!formValues.team2) errors.team2 = 'You must enter Team2 Name.';
+    if (!formValues.firstTeam) errors.firstTeam = 'You must enter Team1 Name.';
+    if (!formValues.secondTeam)
+      errors.secondTeam = 'You must enter Team2 Name.';
     if (!formValues.toss) errors.toss = 'You must decide the toss.';
     if (!formValues.choose)
       errors.choose = 'Team who won toss decide Batting or Bowling.';
@@ -90,9 +91,22 @@ class GameCreate extends Component {
     return errors;
   };
 
+  initialData = {
+    firstTeam: 'Sky Eagles',
+    secondTeam: 'Red Flames',
+    overs: 6,
+    wpr: 1,
+    noball: true,
+    byes: true,
+    legbyes: true,
+  };
+
   render() {
     return (
-      <Form onSubmit={this.onFormSubmit} validate={this.validate}>
+      <Form
+        onSubmit={this.onFormSubmit}
+        validate={this.validate}
+        initialValues={this.initialData}>
         {({ handleSubmit, form, values }) => (
           <form className='ui form container' onSubmit={handleSubmit}>
             <label className='ui header center aligned container'>
@@ -101,14 +115,14 @@ class GameCreate extends Component {
             <div className='field'>
               <Field
                 className='item'
-                name='team1'
+                name='firstTeam'
                 type='text'
                 label='Enter Team1'
                 component={this.renderInput}
               />
               <Field
                 className='item'
-                name='team2'
+                name='secondTeam'
                 type='text'
                 label='Enter Team2'
                 component={this.renderInput}>
@@ -119,7 +133,7 @@ class GameCreate extends Component {
               <Field
                 name='toss'
                 label='Who won the toss?'
-                options={{ team1: 'Team1', team2: 'Team2' }}
+                options={{ firstTeam: 'Team1', secondTeam: 'Team2' }}
                 component={this.renderSelect}>
                 {/* {(fieldState) => (
                   <pre>{JSON.stringify(fieldState, undefined, 2)}</pre>

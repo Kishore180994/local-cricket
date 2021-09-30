@@ -2,9 +2,21 @@ import { createSelector } from 'reselect';
 
 const selectCurrentScore = (state) => state.curScore;
 
-export const selectFirstInnigs = createSelector(
+export const selectTeam1 = createSelector(
   [selectCurrentScore],
-  (curScore) => curScore.firstInnings
+  (curScore) => curScore.team1
+);
+
+export const selectTeam2 = createSelector(
+  [selectCurrentScore],
+  (curScore) => curScore.team2
+);
+
+export const selectFirstInnigs = createSelector(
+  [selectTeam1, selectTeam2],
+  (team1, team2) => {
+    return team1.isBatting ? team1 : team2;
+  }
 );
 
 export const selectStriker = createSelector(
