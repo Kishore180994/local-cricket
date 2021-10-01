@@ -30,8 +30,8 @@ const RenderInput = ({
                 options.map((option) => (
                   <div
                     className='item'
-                    key={option.id}
-                    onClick={(e) => onValueChange(e, option.playerId)}>
+                    key={option.playerId}
+                    onClick={(e) => onValueChange(e, option)}>
                     <div className='content'>
                       <div className='header'>{option.name}</div>
                       <div className='score'>{option.bowling.runs}</div>

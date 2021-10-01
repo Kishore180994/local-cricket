@@ -8,6 +8,7 @@ import {
   ADD_BOWLER,
   CREATE_GAME,
   MOVE_PLAYER,
+  MOVE_BOWLER,
   SWAP_STRIKER,
   SWAP_STRIKER_FORCE,
 } from '../../actions/types';
@@ -22,6 +23,8 @@ import {
   addNonStriker,
   matchInit,
   getCurrentBattingTeam,
+  addBowler,
+  moveCurrentBowler,
 } from './currentScore.utils';
 
 const INITIAL_STATE = {
@@ -62,26 +65,28 @@ const currentScoreReducer = (state = INITIAL_STATE, action) => {
       return swapStriker(newState);
 
     case ADD_RUN:
-      return addRun(state, action.payload);
+      return addRun(newState, action.payload);
 
     case ADD_EXTRA:
       return addExtra(newState, action.payload.extra, action.payload.runs);
 
     case ADD_WICKET:
-      return addWicket(state, 'somethingToAddLater');
+      return addWicket(newState, 'somethingToAddLater');
 
     case ADD_STRIKER:
       return addStriker(newState, action.payload);
 
     case ADD_NON_STRIKER:
-      // (TODO)
       return addNonStriker(newState, action.payload);
-
-    case ADD_BOWLER:
-      return _.set(newState, 'bowler.name', action.payload);
 
     case MOVE_PLAYER:
       return movePlayer(newState, action.payload);
+
+    case ADD_BOWLER:
+      return addBowler(newState, action.payload);
+
+    case MOVE_BOWLER:
+      return moveCurrentBowler(newState);
 
     default:
       return state;

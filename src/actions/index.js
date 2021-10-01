@@ -19,6 +19,7 @@ import {
   SWAP_STRIKER_FORCE,
   OUT_BATSMAN,
   BOWLER_MODAL,
+  MOVE_BOWLER,
 } from './types';
 
 export const signIn = (userId) => {
@@ -151,10 +152,16 @@ export const movePlayer = (name) => async (dispatch) => {
   });
 };
 
-export const addBowler = (name) => async (dispatch) => {
+export const moveBowler = () => async (dispatch) => {
+  dispatch({
+    type: MOVE_BOWLER,
+  });
+};
+
+export const addBowler = (nameOrObject) => async (dispatch) => {
   dispatch({
     type: ADD_BOWLER,
-    payload: name,
+    payload: nameOrObject,
   });
 };
 

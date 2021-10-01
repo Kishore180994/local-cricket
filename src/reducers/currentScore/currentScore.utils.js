@@ -258,3 +258,43 @@ export const addNonStriker = (curScore, name) => {
     },
   };
 };
+
+export const addBowler = (curScore, nameOrObject) => {
+  console.log(nameOrObject, typeof nameOrObject);
+  if (typeof nameOrObject === 'string') {
+    return {
+      ...curScore,
+      bowler: {
+        ...PLAYER_STATE,
+        name: nameOrObject,
+        playerId: uuidv4(),
+      },
+    };
+  } else if (typeof nameOrObject === 'object') {
+    return {
+      ...curScore,
+      bowler: nameOrObject,
+    };
+  }
+};
+
+export const moveCurrentBowler = (curScore) => {
+  const { bowler, team1, team2 } = curScore;
+  const bowlingTeam = team1.isBatting ? team2 : team1;
+  const players = isPlayerInTheList(bowler, bowlingTeam.players)
+    ? bowlingTeam.players
+    : [...bowlingTeam.players, bowler];
+  return {
+    ...curScore,
+    [bowlingTeam.objName]: { ...bowlingTeam, players: players },
+  };
+};
+
+export const isPlayerInTheList = (player, team) => {
+  const foundPlayer = team.filter(
+    (eachPlayer) => eachPlayer.playerId === player.playerId
+  );
+
+  if (foundPlayer.length) return true;
+  else return false;
+};

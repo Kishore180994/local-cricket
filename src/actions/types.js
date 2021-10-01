@@ -38,6 +38,7 @@ export const SWAP_STRIKER_FORCE = 'SWAP_STRIKER_FORCE';
 export const WICKET_MODAL = 'WICKET_MODAL';
 export const BOWLER_MODAL = 'BOWLER_MODAL';
 export const MOVE_PLAYER = 'MOVE_PLAYER';
+export const MOVE_BOWLER = 'MOVE_BOWLER';
 
 // WICKET TYPE
 export const BOWLED = 'BOWLED!!!';

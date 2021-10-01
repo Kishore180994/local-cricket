@@ -46,7 +46,7 @@ import {
   RUN_OUT,
   STUMP_OUT,
 } from '../../actions/types';
-import BowlerModal from '../bowler-modal/bowler-modal.componene';
+import BowlerModal from '../bowler-modal/bowler-modal.component';
 
 class GamePlay extends Component {
   constructor() {

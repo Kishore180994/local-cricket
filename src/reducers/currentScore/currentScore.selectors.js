@@ -19,6 +19,14 @@ export const selectFirstInnigs = createSelector(
   }
 );
 
+export const selectBowlingTeam = createSelector(
+  [selectCurrentScore],
+  (curScore) => {
+    const { team1, team2 } = curScore;
+    return team1.isBatting ? team2 : team1;
+  }
+);
+
 export const selectStriker = createSelector(
   [selectCurrentScore],
   (curScore) => curScore.striker
@@ -73,6 +81,7 @@ export const selectSettings = createSelector(
   [selectCurrentScore],
   (curScore) => curScore.settings
 );
+
 export const selectIsWidesEnabled = createSelector(
   [selectSettings],
   (settings) => (settings.widesPerRun ? true : false)
