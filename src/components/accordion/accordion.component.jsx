@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { convertBallsToOvers } from '../../util';
 import './accordion.styles.scss';
 import { trimObjectToTwo } from './accordion.utils';
@@ -67,7 +67,7 @@ class Accordion extends React.Component {
                   <label className='team-name-sub'>(batting)</label>
                 </label>
                 {this.state.topTwoPlayers.map((player) => (
-                  <div className='item' key={player.name}>
+                  <div className='item' key={player.playerId}>
                     <div className='player'>{player.name}</div>
                     <div className='score'>
                       {player.batting.runs}({player.batting.balls})

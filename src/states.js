@@ -2,6 +2,7 @@ import { BENCH } from './actions/types';
 
 export const PLAYER_STATE = {
   playerId: '',
+  order: '',
   name: '',
   bat: BENCH,
   bowl: false,

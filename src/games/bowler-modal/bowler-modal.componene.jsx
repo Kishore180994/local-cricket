@@ -9,18 +9,20 @@ import { createStructuredSelector } from 'reselect';
 
 class BowlerModal extends React.Component {
   state = {
-    bowler: '',
+    bowler: null,
+    bowlerId: '',
   };
 
   handleSubmit = () => {
     //Move the current bowler to the secondInnings
+    this.setState({ bowler: '', bowlerId: null });
   };
 
   renderHeader = () => <div>END OF THE OVER</div>;
 
   onValueChange = (e, value) => {
     value
-      ? this.setState({ bowler: value })
+      ? this.setState({ bowlerId: value })
       : this.setState({ bowler: e.target.value });
   };
 

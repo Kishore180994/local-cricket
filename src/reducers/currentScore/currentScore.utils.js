@@ -1,6 +1,7 @@
-import _ from 'lodash';
+import _, { uniqueId } from 'lodash';
 import { PLAYER_STATE } from '../../states';
 import { getCurRunRate } from '../../util';
+import { v4 as uuidv4 } from 'uuid';
 
 export const matchInit = (curScore, formValues) => {
   const { team1, team2 } = curScore;
@@ -205,14 +206,14 @@ export const swapStriker = (curScore) => {
   return curScore;
 };
 
-export const movePlayer = (curScore, name) => {
+export const movePlayer = (curScore, id) => {
   const currentBattingTeam = getCurrentBattingTeam(curScore);
   const {
     striker,
     nonStriker,
     [currentBattingTeam.objName]: { players },
   } = curScore;
-  if (striker.name === name) {
+  if (striker.playerId === id) {
     return {
       ...curScore,
       striker: { ...PLAYER_STATE },
@@ -221,7 +222,7 @@ export const movePlayer = (curScore, name) => {
         players: [...players, striker],
       },
     };
-  } else if (nonStriker.name === name) {
+  } else if (nonStriker.playerId === id) {
     return {
       ...curScore,
       nonStriker: { ...PLAYER_STATE },
@@ -237,10 +238,23 @@ export const movePlayer = (curScore, name) => {
 
 export const addStriker = (curScore, name) => {
   const { striker } = curScore;
-  return { ...curScore, striker: { ...striker, name: name } };
+  const p_id = striker.playerId ? striker.playerId : uuidv4();
+  return {
+    ...curScore,
+    striker: { ...striker, name: name, playerId: p_id, order: uniqueId() },
+  };
 };
 
 export const addNonStriker = (curScore, name) => {
   const { nonStriker } = curScore;
-  return { ...curScore, nonStriker: { ...nonStriker, name: name } };
+  const p_id = nonStriker.playerId ? nonStriker.playerId : uuidv4();
+  return {
+    ...curScore,
+    nonStriker: {
+      ...nonStriker,
+      name: name,
+      playerId: p_id,
+      order: uniqueId(),
+    },
+  };
 };
