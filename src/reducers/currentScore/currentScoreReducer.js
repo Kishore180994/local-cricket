@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import undoable from 'redux-undo';
 import {
   ADD_RUN,
   ADD_EXTRA,
@@ -11,11 +12,12 @@ import {
   MOVE_BOWLER,
   SWAP_STRIKER,
   SWAP_STRIKER_FORCE,
+  ADD_RUNS_TO_PLAYER,
 } from '../../actions/types';
 import { PLAYER_STATE, TEAM_STATE } from '../../states';
 import {
-  addRun,
-  swapStriker,
+  addRunUtil,
+  swapStrikerUtil,
   addWicket,
   addExtra,
   movePlayer,
@@ -25,6 +27,7 @@ import {
   getCurrentBattingTeam,
   addBowler,
   moveCurrentBowler,
+  addRunsToPlayerObjectOnRunOut,
 } from './currentScore.utils';
 
 const INITIAL_STATE = {
@@ -57,21 +60,21 @@ const currentScoreReducer = (state = INITIAL_STATE, action) => {
       const balls = currentBattingTeam.stats.totalBalls;
       if (balls % 6 === 0 && (runs === 1 || runs === 3)) return newState;
       else if (runs === 1 || runs === 3 || balls % 6 === 0) {
-        swapStriker(newState);
+        swapStrikerUtil(newState);
         return newState;
       } else return newState;
 
     case SWAP_STRIKER_FORCE:
-      return swapStriker(newState);
+      return swapStrikerUtil(newState);
 
     case ADD_RUN:
-      return addRun(newState, action.payload);
+      return addRunUtil(newState, action.payload);
 
     case ADD_EXTRA:
       return addExtra(newState, action.payload.extra, action.payload.runs);
 
     case ADD_WICKET:
-      return addWicket(newState, 'somethingToAddLater');
+      return addWicket(newState, action.payload);
 
     case ADD_STRIKER:
       return addStriker(newState, action.payload);
@@ -88,9 +91,19 @@ const currentScoreReducer = (state = INITIAL_STATE, action) => {
     case MOVE_BOWLER:
       return moveCurrentBowler(newState);
 
+    case ADD_RUNS_TO_PLAYER:
+      return addRunsToPlayerObjectOnRunOut(newState, action.payload);
+
     default:
       return state;
   }
 };
 
-export default currentScoreReducer;
+const undoableCurrentScoreReducer = undoable(currentScoreReducer, {
+  limit: 10,
+  filter: function filterActions(action, currentState, previousHistory) {
+    return action.type !== SWAP_STRIKER || action.type !== SWAP_STRIKER_FORCE; // only add to history if action is SOME_ACTION
+  },
+  debug: true,
+});
+export default undoableCurrentScoreReducer;

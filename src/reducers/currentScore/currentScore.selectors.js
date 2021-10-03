@@ -4,12 +4,12 @@ const selectCurrentScore = (state) => state.curScore;
 
 export const selectTeam1 = createSelector(
   [selectCurrentScore],
-  (curScore) => curScore.team1
+  (curScore) => curScore.present.team1
 );
 
 export const selectTeam2 = createSelector(
   [selectCurrentScore],
-  (curScore) => curScore.team2
+  (curScore) => curScore.present.team2
 );
 
 export const selectFirstInnigs = createSelector(
@@ -22,29 +22,29 @@ export const selectFirstInnigs = createSelector(
 export const selectBowlingTeam = createSelector(
   [selectCurrentScore],
   (curScore) => {
-    const { team1, team2 } = curScore;
+    const { team1, team2 } = curScore.present;
     return team1.isBatting ? team2 : team1;
   }
 );
 
 export const selectStriker = createSelector(
   [selectCurrentScore],
-  (curScore) => curScore.striker
+  (curScore) => curScore.present.striker
 );
 
 export const selectMatchId = createSelector(
   [selectCurrentScore],
-  (curScore) => curScore.matchId
+  (curScore) => curScore.present.matchId
 );
 
 export const selectNonStriker = createSelector(
   [selectCurrentScore],
-  (curScore) => curScore.nonStriker
+  (curScore) => curScore.present.nonStriker
 );
 
 export const selectBowler = createSelector(
   [selectCurrentScore],
-  (curScore) => curScore.bowler
+  (curScore) => curScore.present.bowler
 );
 
 export const selectStats = createSelector(
@@ -79,7 +79,7 @@ export const selectCurrentRunRate = createSelector(
 
 export const selectSettings = createSelector(
   [selectCurrentScore],
-  (curScore) => curScore.settings
+  (curScore) => curScore.present.settings
 );
 
 export const selectIsWidesEnabled = createSelector(

@@ -28,12 +28,26 @@ export const InputContainer = styled.div`
             justify-content: space-evenly;
             color: grey;
             cursor: pointer;
-            :active {
-              background-color: cadetblue;
-              color: white;
+            .header {
+              width: 50%;
+            }
+            .score {
+              width: 25%;
+            }
+            .overs {
+              width: 25%;
+              font-size: smaller;
+              font-style: italic;
             }
           }
           border-bottom: 1px solid #0002;
+        }
+        .active {
+          .content {
+            color: white;
+            background-color: cadetblue;
+            font-weight: bolder;
+          }
         }
       }
     }

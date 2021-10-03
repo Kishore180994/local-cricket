@@ -1,3 +1,4 @@
+import undoable from 'redux-undo';
 import { WICKET_MODAL, OUT_BATSMAN, BOWLER_MODAL } from '../../actions/types';
 
 const INITIAL_STATE = {
@@ -33,5 +34,7 @@ const modalReducer = (state = INITIAL_STATE, action) => {
       return state;
   }
 };
+
+// const undoableModalReducer = undoable(modalReducer);
 
 export default modalReducer;

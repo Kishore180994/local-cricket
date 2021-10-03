@@ -26,6 +26,7 @@ class BowlerModal extends React.Component {
     else if (this.state.bowler) addBowler(this.state.bowler);
     else console.log('Check bowler model component');
     this.setState({ bowler: '', bowlerId: null });
+    this.props.setBowlerModal(true);
   };
 
   renderHeader = () => <div>END OF THE OVER</div>;

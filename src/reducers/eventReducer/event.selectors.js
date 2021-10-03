@@ -4,10 +4,10 @@ const selectEvents = (state) => state.events;
 
 export const selectIsWidesEnabled = createSelector(
   [selectEvents],
-  (events) => events.isSelectedWides
+  (events) => events.present.isSelectedWides
 );
 
 export const selectIsSelectedExtra = createSelector(
   [selectEvents],
-  (events) => events.isSelectedExtra
+  (events) => events.present.isSelectedExtra
 );

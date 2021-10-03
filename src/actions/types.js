@@ -50,3 +50,4 @@ export const STUMP_OUT = 'STUMP OUT!!!';
 export const RETIRED_HURT = 'RETIRED HURT!!!';
 
 export const OUT_BATSMAN = 'OUT_BATSMAN';
+export const ADD_RUNS_TO_PLAYER = 'ADD_RUNS_TO_PLAYER';

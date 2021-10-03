@@ -20,6 +20,7 @@ import {
   OUT_BATSMAN,
   BOWLER_MODAL,
   MOVE_BOWLER,
+  ADD_RUNS_TO_PLAYER,
 } from './types';
 
 export const signIn = (userId) => {
@@ -77,6 +78,13 @@ export const addScore = (runs) => async (dispatch) => {
   });
 };
 
+export const addRunToPlayer = (runs) => async (dispatch) => {
+  dispatch({
+    type: ADD_RUNS_TO_PLAYER,
+    payload: runs,
+  });
+};
+
 export const addExtra = (extra, runs) => async (dispatch) => {
   dispatch({
     type: ADD_EXTRA,
@@ -84,9 +92,10 @@ export const addExtra = (extra, runs) => async (dispatch) => {
   });
 };
 
-export const addWicket = () => async (dispatch) => {
+export const addWicket = (wicketType) => async (dispatch) => {
   dispatch({
     type: ADD_WICKET,
+    payload: wicketType,
   });
 };
 

@@ -10,6 +10,7 @@ import {
   swapStriker,
   swapStrikerForce,
   setBatsmanOut,
+  addRunToPlayer,
 } from '../../actions';
 import { createStructuredSelector } from 'reselect';
 
@@ -66,6 +67,7 @@ class WicketModal extends React.Component {
       setWicketModal,
       outNonStrikerActionOrder,
       outStrikerActionOrder,
+      addRunsToStrikerBeforeRunout,
     } = this.props;
     const { chooseNextBatsmanSide, chooseNextBatsman, runOutCheckedValue } =
       this.state;
@@ -86,7 +88,7 @@ class WicketModal extends React.Component {
                 await outNonStrikerActionOrder(chooseNextBatsman);
               });
             }
-            await addWicket();
+            await addWicket(CAUGHT_OUT);
             setWicketModal(true);
             setBatsmanOut(null);
           } else {
@@ -99,6 +101,9 @@ class WicketModal extends React.Component {
               runOutCheckedValue === striker.name ? striker : nonStriker;
             // Move the player who got out to the pavilion
             this.setState({ currentBatsmanWhoGotOut: outRole });
+            // Add runs to the "outrole object and total score card"
+            // before moving the player to pavilion.
+            await addRunsToStrikerBeforeRunout(this.state.runsScoredOnRunOut);
             await movePlayer(outRole.playerId);
             if (chooseNextBatsmanSide) {
               if (
@@ -125,7 +130,7 @@ class WicketModal extends React.Component {
               ) {
                 await outStrikerActionOrder(chooseNextBatsman);
               }
-              await addWicket();
+              await addWicket(RUN_OUT);
               setWicketModal(true);
               setBatsmanOut(null);
             } else {
@@ -163,13 +168,13 @@ class WicketModal extends React.Component {
           this.setState({ currentBatsmanWhoGotOut: striker });
           await movePlayer(striker.playerId);
           await addStriker(chooseNextBatsman);
-          await addWicket();
+          await addWicket(STUMP_OUT);
           setWicketModal(true);
           setBatsmanOut(null);
           break;
         default:
           this.setState({ currentBatsmanWhoGotOut: striker });
-          await addWicket();
+          await addWicket(STUMP_OUT);
           await swapStriker();
           this.setState({ chooseNextBatsman: '' });
           setWicketModal(true);
@@ -301,7 +306,9 @@ class WicketModal extends React.Component {
                   value={this.state.runsScoredOnRunOut}
                   placeholder='runs(default: 0)'
                   onChange={(e) =>
-                    this.setState({ runsScoredOnRunOut: e.target.value })
+                    this.setState({
+                      runsScoredOnRunOut: parseInt(e.target.value) || 0,
+                    })
                   }
                   required
                 />
@@ -426,8 +433,9 @@ const mapDispatchToProps = (dispatch) => ({
   swapStrikerForce: () => dispatch(swapStrikerForce()),
   movePlayer: (id) => dispatch(movePlayer(id)),
   addStriker: (name) => dispatch(addStriker(name)),
+  addRunsToStrikerBeforeRunout: (runs) => dispatch(addRunToPlayer(runs)),
   addNonStriker: (name) => dispatch(addNonStriker(name)),
-  addWicket: () => dispatch(addWicket()),
+  addWicket: (val) => dispatch(addWicket(val)),
   setBatsmanOut: (name) => dispatch(setBatsmanOut(name)),
 });
 

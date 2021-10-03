@@ -11,6 +11,15 @@ import {
   selectStriker,
   selectTotalBallsPlayed,
 } from '../../reducers/currentScore/currentScore.selectors';
+import {
+  ScoreColumn,
+  ScoreMainContainer,
+  ScoreRow,
+  ScoreGrid,
+  FooterGrid,
+  FooterColumn,
+  FooterRow,
+} from './play-score-card.styles';
 import { convertOversToBalls, getProjectedScore } from '../../util';
 import { renderOvers } from '../game-play/game-play.utils';
 
@@ -22,10 +31,10 @@ class PlayScoreCard extends React.Component {
           <div className='content center aligned'>
             <label className='header'>Scorecard</label>
           </div>
-          <div className='item content container'>
-            <div className=' ui two column grid'>
-              <div className='row'>
-                <div className='column'>
+          <ScoreMainContainer>
+            <ScoreGrid>
+              <ScoreRow>
+                <ScoreColumn className='score-label'>
                   <label className='ui big teal horizontal label'>Score</label>
                   <div className='ui compact menu'>
                     <label className='item'>
@@ -35,8 +44,8 @@ class PlayScoreCard extends React.Component {
                       </div>
                     </label>
                   </div>
-                </div>
-                <div className='column'>
+                </ScoreColumn>
+                <ScoreColumn>
                   <div className='ui middle aligned divided list'>
                     <div className='item'>
                       <div className='right floated content'>
@@ -61,13 +70,13 @@ class PlayScoreCard extends React.Component {
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              <div className='row'>
-                <div className='column'>
+                </ScoreColumn>
+              </ScoreRow>
+              <ScoreRow>
+                <ScoreColumn className='overs'>
                   {renderOvers('Overs', this.props.totalBallsPlayed || 0)}
-                </div>
-                <div className='column'>
+                </ScoreColumn>
+                <ScoreColumn className='bowler-score'>
                   <div className='ui middle aligned divided list'>
                     <div className='item'>
                       <div className='right floated content'>
@@ -85,44 +94,54 @@ class PlayScoreCard extends React.Component {
                       <div className='content'>{this.props.bowler.name}</div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className='extra content'>
+                </ScoreColumn>
+              </ScoreRow>
+            </ScoreGrid>
+          </ScoreMainContainer>
+          <ScoreMainContainer className='extra content'>
             <a href='/'>
-              <div className=' ui two column grid'>
-                <div className='row'>
-                  <div className='column'>
-                    <i className='info circle icon'></i>
+              <FooterGrid>
+                <FooterRow>
+                  <FooterColumn>
                     {/* Projected score = currentRunRate*TotalOvers */}
-                    <label>Projected Score</label>{' '}
-                    {getProjectedScore(
-                      this.props.currentRunRate,
-                      this.props.overs
-                    )}
                     <div>
-                      <i className='info circle icon'></i>
-                      <label>Balls left</label>{' '}
+                      <label>
+                        <i className='info circle icon'></i>Projected Score
+                      </label>{' '}
+                      {getProjectedScore(
+                        this.props.currentRunRate,
+                        this.props.overs
+                      )}
+                    </div>
+                    <div>
+                      <label>
+                        <i className='info circle icon'></i>Balls left
+                      </label>{' '}
                       {convertOversToBalls(this.props.overs) -
                         this.props.totalBallsPlayed}
                     </div>
-                  </div>
-                  <div className='column'>
-                    <i className='info circle icon'></i>
-                    <label>Current Runrate</label> {this.props.currentRunRate}
+                  </FooterColumn>
+                  <FooterColumn>
+                    <div>
+                      <label>
+                        <i className='info circle icon'></i>Current Runrate
+                      </label>{' '}
+                      {this.props.currentRunRate}
+                    </div>
                     <div>
                       {/*(TODO) For second innings */}
                       {/* Wickets Remaining */}
-                      <i className='info circle icon'></i>
-                      <label>[Remove]Required Runrate</label> 5
-                      {/* Wickets Remaining */}
+                      {/* <label>
+                        <i className='info circle icon'></i>[Remove]Required
+                        Runrate
+                      </label>{' '}
+                      5Wickets Remaining */}
                     </div>
-                  </div>
-                </div>
-              </div>
+                  </FooterColumn>
+                </FooterRow>
+              </FooterGrid>
             </a>
-          </div>
+          </ScoreMainContainer>
         </div>
       </div>
     );

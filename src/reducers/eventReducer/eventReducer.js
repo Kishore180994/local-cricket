@@ -1,3 +1,4 @@
+import undoable from 'redux-undo';
 import { SELECT_EXTRA, SELECT_WIDES } from '../../actions/types';
 
 const INITIAL_STATE = {
@@ -16,4 +17,6 @@ const eventReducer = (state = INITIAL_STATE, action) => {
   }
 };
 
-export default eventReducer;
+const undoableEventReducer = undoable(eventReducer);
+
+export default undoableEventReducer;

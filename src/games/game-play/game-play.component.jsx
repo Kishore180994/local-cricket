@@ -1,14 +1,14 @@
 import '../GameView.scss';
 import React, { Component } from 'react';
+import { ActionCreators as UndoActionCreators } from 'redux-undo';
 import { connect } from 'react-redux';
 import {
   addScore,
-  undo,
-  setOpen,
-  setSelected,
   setWicketModal,
   swapStriker,
   setBowlerModal,
+  setOpen,
+  setSelected,
 } from '../../actions';
 import { Link } from 'react-router-dom';
 import { createStructuredSelector } from 'reselect';
@@ -63,11 +63,15 @@ class GamePlay extends Component {
   }
 
   addScore = (run) => {
-    this.props.addScore(run).then(() => {
-      const overEnd = this.props.totalBallsPlayed % 6;
-      if (!overEnd || run === 1 || run === 3) this.props.swapStriker(run);
-      if (!overEnd) this.props.setBowlerModal(false);
-    });
+    const { addScoreAndSwapStriker } = this.props;
+    addScoreAndSwapStriker(run);
+    const overEnd = (this.props.totalBallsPlayed + 1) % 6;
+    if (!overEnd) this.props.setBowlerModal(false);
+    // this.props.addScore(run).then(() => {
+    //   const overEnd = this.props.totalBallsPlayed % 6;
+    //   if (!overEnd || run === 1 || run === 3) this.props.swapStriker(run);
+    //   if (!overEnd) this.props.setBowlerModal(false);
+    // });
     updateScroll(this.myRef);
   };
 
@@ -150,8 +154,9 @@ class GamePlay extends Component {
             </label>
             <div ref={this.myRef} className='scroll'>
               <span className='ballScroll'>
-                {this.props.thisOver
-                  ? this.props.thisOver.map((value, id) => {
+                {this.props.thisOver ? (
+                  this.props.thisOver.map((overs) => {
+                    return overs.map((value, id) => {
                       const color =
                         typeof value === 'number'
                           ? 'black'
@@ -164,10 +169,14 @@ class GamePlay extends Component {
                           <label className={`ui ${color} circular label`}>
                             {value}
                           </label>
+                          {overs.length === id + 1 ? <label>|</label> : null}
                         </span>
                       );
-                    })
-                  : null}
+                    });
+                  })
+                ) : (
+                  <label className='ui circular label'>|</label>
+                )}
               </span>
             </div>
           </div>
@@ -187,9 +196,7 @@ class GamePlay extends Component {
           <PlayScoreCard />
           <button
             className='ui button right floated'
-            onClick={() => {
-              this.props.undo();
-            }}>
+            onClick={() => this.props.onUndo()}>
             Undo
           </button>
           <Link to='/games/create' className='ui button right floated'>
@@ -220,12 +227,18 @@ const mapStateToProps = createStructuredSelector({
   totalBallsPlayed: selectTotalBallsPlayed,
 });
 
-export default connect(mapStateToProps, {
-  addScore,
-  undo,
-  setOpen,
-  setSelected,
-  setWicketModal,
-  swapStriker,
-  setBowlerModal,
-})(GamePlay);
+export const mapDispatchToProps = (dispatch) => ({
+  onUndo: () => dispatch(UndoActionCreators.undo()),
+  addScoreAndSwapStriker: (run) => {
+    dispatch(addScore(run));
+    dispatch(swapStriker(run));
+  },
+  setOpen: (type, val) => dispatch(setOpen(type, val)),
+  setSelected: (val) => dispatch(setSelected(val)),
+  addScore: (run) => dispatch(addScore(run)),
+  setWicketModal: (val, type) => dispatch(setWicketModal(val, type)),
+  swapStriker: (run) => dispatch(swapStriker(run)),
+  setBowlerModal: (val) => dispatch(setBowlerModal(val)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(GamePlay);

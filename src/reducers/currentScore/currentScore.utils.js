@@ -2,6 +2,7 @@ import _, { uniqueId } from 'lodash';
 import { PLAYER_STATE } from '../../states';
 import { getCurRunRate } from '../../util';
 import { v4 as uuidv4 } from 'uuid';
+import { RUN_OUT } from '../../actions/types';
 
 export const matchInit = (curScore, formValues) => {
   const { team1, team2 } = curScore;
@@ -53,28 +54,28 @@ export const getCurrentBattingTeam = (curScore) => {
   return team1.isBatting ? team1 : team2;
 };
 
-export const addLineBreaker = async (curScore) => {
-  await swapStriker(curScore);
-  const currentBattingTeam = getCurrentBattingTeam(curScore);
-  const {
-    stats: { thisOver },
-  } = currentBattingTeam;
-
-  const newState = {
-    ...currentBattingTeam.stats,
-    thisOver: [...thisOver, '|'],
-  };
-
-  return {
-    ...curScore,
-    [currentBattingTeam.objName]: {
-      ...currentBattingTeam,
-      stats: newState,
-    },
-  };
+export const getCurrentOver = (overs) => {
+  if (!overs || overs === null) return null;
+  return overs.at(-1);
 };
 
-export const addRun = (curScore, run) => {
+const addRunWicketToOver = (balls, thisOver, run) => {
+  if (balls % 6 === 0) {
+    //End the current over i.e, end the current array.
+    //Start the new over ie., start the new array.
+    const newOver = [run];
+    return [...thisOver, newOver];
+  } else {
+    return thisOver.map((over, index) => {
+      if (thisOver.length === index + 1) {
+        return [...over, run];
+      }
+      return over;
+    });
+  }
+};
+
+export const addRunUtil = (curScore, run) => {
   const currentBattingTeam = getCurrentBattingTeam(curScore);
   const {
     striker: {
@@ -96,6 +97,10 @@ export const addRun = (curScore, run) => {
 
   const bowlerRuns = bowling.runs + run;
   const bowlerBalls = bowling.balls + 1;
+  const totalBallsBowledInThisInnigs = totalBalls + 1;
+  let oversInInnings = thisOver;
+  // (TODO) Check if the innings ends
+  oversInInnings = addRunWicketToOver(totalBalls, thisOver, run);
 
   const newStriker = {
     ...curScore.striker,
@@ -113,8 +118,8 @@ export const addRun = (curScore, run) => {
   const newStats = {
     ...currentBattingTeam.stats,
     totalRuns: totalRuns + run,
-    totalBalls: totalBalls + 1 || 0,
-    thisOver: [...thisOver, run],
+    totalBalls: totalBallsBowledInThisInnigs || 0,
+    thisOver: oversInInnings,
     currentRunRate: getCurRunRate(totalRuns + run, totalBalls + 1),
   };
 
@@ -139,19 +144,22 @@ export const addWicket = (curScore, wicket) => {
   const {
     bowling: { balls, wickets },
   } = bowler;
+  const oversInInnings = addRunWicketToOver(totalBalls, thisOver, 'W');
   const newStats = {
     ...currentBattingTeam.stats,
     totalBalls: totalBalls + 1 || 0,
-    thisOver: [...thisOver, 'W'],
-    totalWickets: totalWickets + 1 || 1,
+    thisOver: oversInInnings,
+    totalWickets: totalWickets + 1 || 0,
   };
+
+  const revisedWicketCount = wicket === RUN_OUT ? wickets : wickets + 1;
 
   const newBowler = {
     ...bowler,
     bowling: {
       ...bowler.bowling,
       balls: balls + 1 || 0,
-      wickets: wickets + 1 || 1,
+      wickets: revisedWicketCount,
     },
   };
 
@@ -166,24 +174,32 @@ export const addExtra = (curScore, extraType, extraRuns) => {
   const currentBattingTeam = getCurrentBattingTeam(curScore);
   const { bowler } = curScore;
   const {
-    stats: { thisOver, totalRuns },
+    stats: { thisOver, totalRuns, totalBalls },
   } = currentBattingTeam;
+
   const {
     bowling: { runs },
   } = bowler;
 
   const extraRunsRevised =
     extraType === 'b' || extraType === 'lb' ? extraRuns : extraRuns - 1;
-
+  const extraBallsRevised = extraType === 'b' || extraType === 'lb' ? 1 : 0;
+  const oversInInnings = addRunWicketToOver(
+    totalBalls,
+    thisOver,
+    extraType + extraRunsRevised
+  );
   const newStats = {
     ...currentBattingTeam.stats,
-    thisOver: [...thisOver, extraType + extraRunsRevised],
+    totalBalls: currentBattingTeam.stats.totalBalls + extraBallsRevised,
+    thisOver: oversInInnings,
     totalRuns: totalRuns + extraRuns,
   };
 
   const newBowling = {
     ...bowler.bowling,
     runs: runs + extraRuns,
+    balls: bowler.bowling.balls + extraBallsRevised,
   };
 
   return {
@@ -199,7 +215,7 @@ export const addExtra = (curScore, extraType, extraRuns) => {
   };
 };
 
-export const swapStriker = (curScore) => {
+export const swapStrikerUtil = (curScore) => {
   const temp = curScore.striker;
   _.set(curScore, 'striker', curScore.nonStriker);
   _.set(curScore, 'nonStriker', temp);
@@ -283,7 +299,7 @@ export const moveCurrentBowler = (curScore) => {
   const bowlingTeam = team1.isBatting ? team2 : team1;
   const players = isPlayerInTheList(bowler, bowlingTeam.players)
     ? bowlingTeam.players
-    : [...bowlingTeam.players, bowler];
+    : [...bowlingTeam.players, { ...bowler }];
   return {
     ...curScore,
     [bowlingTeam.objName]: { ...bowlingTeam, players: players },
@@ -297,4 +313,37 @@ export const isPlayerInTheList = (player, team) => {
 
   if (foundPlayer.length) return true;
   else return false;
+};
+
+export const isOverEnd = (balls) => {
+  return balls % 6 === 0;
+};
+
+export const addRunsToPlayerObjectOnRunOut = (curScore, runOutruns) => {
+  // Runs will be added to the current batsman ie., striker and
+  // the current bowler.
+  const { striker, bowler } = curScore;
+  const { batting } = striker;
+  const { bowling } = bowler;
+
+  // Get current batting team
+  const team = getCurrentBattingTeam(curScore);
+  return {
+    ...curScore,
+    // Add runs to team's total Runs.
+    [team.objName]: {
+      ...team,
+      stats: { ...team.stats, totalRuns: team.stats.totalRuns + runOutruns },
+    },
+    // Add runs to striker.
+    striker: {
+      ...striker,
+      batting: { ...batting, runs: batting.runs + runOutruns },
+    },
+    // Add runs to bowler.
+    bowler: {
+      ...bowler,
+      bowling: { ...bowling, runs: bowling.runs + runOutruns },
+    },
+  };
 };
