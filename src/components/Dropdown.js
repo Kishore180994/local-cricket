@@ -1,6 +1,8 @@
 import { useRef } from 'react';
 import { connect } from 'react-redux';
-import { addExtra } from '../actions';
+import { createStructuredSelector } from 'reselect';
+import { addExtra, setBowlerModal, swapStriker } from '../actions';
+import { selectTotalBallsPlayed } from '../reducers/currentScore/currentScore.selectors';
 
 const Dropdown = ({
   val,
@@ -11,7 +13,9 @@ const Dropdown = ({
   runType,
   setSelected,
   children,
-  addExtra,
+  addExtraAndSwapStriker,
+  totalBallsPlayed,
+  setBowlerModal,
 }) => {
   const ref = useRef();
   //   useEffect(() => {
@@ -37,8 +41,10 @@ const Dropdown = ({
           setSelected(runType, option.value);
           // Add the extra runs to the "games" state.
           if (val === 'b' || val === 'lb')
-            addExtra(val, parseInt(option.value));
-          else addExtra(val, parseInt(option.value) + 1);
+            addExtraAndSwapStriker(val, parseInt(option.value));
+          else addExtraAndSwapStriker(val, parseInt(option.value) + 1);
+          const overEnd = (totalBallsPlayed + 1) % 6;
+          if (!overEnd) setBowlerModal(false);
         }}>
         {option.value}
       </label>
@@ -62,4 +68,16 @@ const Dropdown = ({
   );
 };
 
-export default connect(null, { addExtra })(Dropdown);
+const mapStateToProps = createStructuredSelector({
+  totalBallsPlayed: selectTotalBallsPlayed,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  addExtraAndSwapStriker: (val, run) => {
+    dispatch(addExtra(val, run));
+    dispatch(swapStriker(run));
+  },
+  setBowlerModal: (val) => dispatch(setBowlerModal(val)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Dropdown);

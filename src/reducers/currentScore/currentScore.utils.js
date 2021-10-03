@@ -172,7 +172,7 @@ export const addWicket = (curScore, wicket) => {
 
 export const addExtra = (curScore, extraType, extraRuns) => {
   const currentBattingTeam = getCurrentBattingTeam(curScore);
-  const { bowler } = curScore;
+  const { bowler, striker } = curScore;
   const {
     stats: { thisOver, totalRuns, totalBalls },
   } = currentBattingTeam;
@@ -196,6 +196,11 @@ export const addExtra = (curScore, extraType, extraRuns) => {
     totalRuns: totalRuns + extraRuns,
   };
 
+  const newBatting = {
+    ...striker.batting,
+    balls: striker.batting.balls + 1,
+  };
+
   const newBowling = {
     ...bowler.bowling,
     runs: runs + extraRuns,
@@ -207,6 +212,10 @@ export const addExtra = (curScore, extraType, extraRuns) => {
     [currentBattingTeam.objName]: {
       ...currentBattingTeam,
       stats: newStats,
+    },
+    striker: {
+      ...striker,
+      batting: newBatting,
     },
     bowler: {
       ...bowler,
@@ -276,7 +285,14 @@ export const addNonStriker = (curScore, name) => {
 };
 
 export const addBowler = (curScore, nameOrObject) => {
-  console.log(nameOrObject, typeof nameOrObject);
+  //  Add bowler to the list of bowling team players.
+  //  Parameters:
+  // curScore: State object
+  // nameOrObject: This parameter can be of two types - string or an Object.
+  //          If the the parameter type is string, then the entry refers to new
+  //          bowler. if the paramter type is object, then the entry refers to
+  //          exisiting bowler object.
+  // Returns: "state" object.
   if (typeof nameOrObject === 'string') {
     return {
       ...curScore,
@@ -295,11 +311,17 @@ export const addBowler = (curScore, nameOrObject) => {
 };
 
 export const moveCurrentBowler = (curScore) => {
+  // Function that allows to move the currentBowler to bowlingTeam platers obj.
+  // Returns: "state" object.
   const { bowler, team1, team2 } = curScore;
   const bowlingTeam = team1.isBatting ? team2 : team1;
   const players = isPlayerInTheList(bowler, bowlingTeam.players)
-    ? bowlingTeam.players
-    : [...bowlingTeam.players, { ...bowler }];
+    ? // If player is already in the list, update the bowler stats
+      bowlingTeam.players.map((player) =>
+        player.playerId === bowler.playerId ? bowler : player
+      )
+    : // Else, add him in the list.
+      [...bowlingTeam.players, { ...bowler }];
   return {
     ...curScore,
     [bowlingTeam.objName]: { ...bowlingTeam, players: players },
@@ -307,6 +329,7 @@ export const moveCurrentBowler = (curScore) => {
 };
 
 export const isPlayerInTheList = (player, team) => {
+  // Boolean function to determine if the player is already in the list.
   const foundPlayer = team.filter(
     (eachPlayer) => eachPlayer.playerId === player.playerId
   );
@@ -316,12 +339,14 @@ export const isPlayerInTheList = (player, team) => {
 };
 
 export const isOverEnd = (balls) => {
+  // Boolean function to determine if the over came to an end.
   return balls % 6 === 0;
 };
 
 export const addRunsToPlayerObjectOnRunOut = (curScore, runOutruns) => {
   // Runs will be added to the current batsman ie., striker and
   // the current bowler.
+  // Returns: "state" object.
   const { striker, bowler } = curScore;
   const { batting } = striker;
   const { bowling } = bowler;
