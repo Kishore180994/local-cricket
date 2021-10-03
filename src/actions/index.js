@@ -21,6 +21,7 @@ import {
   BOWLER_MODAL,
   MOVE_BOWLER,
   ADD_RUNS_TO_PLAYER,
+  END_OF_THE_INNIGS_MODAL,
 } from './types';
 
 export const signIn = (userId) => {
@@ -185,6 +186,13 @@ export const setBowlerModal = (value) => async (dispatch) => {
   dispatch({
     type: BOWLER_MODAL,
     payload: value,
+  });
+};
+
+export const setEndOfInnigsModal = (val) => async (dispatch) => {
+  dispatch({
+    type: END_OF_THE_INNIGS_MODAL,
+    payload: val,
   });
 };
 

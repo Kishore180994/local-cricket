@@ -12,6 +12,11 @@ export const selectBowlerModal = createSelector(
   (modal) => modal.bowlerModal
 );
 
+export const selectEndOfInningsModal = createSelector(
+  [selectModal],
+  (modal) => modal.eoiModal
+);
+
 export const selectBastmanWhoGotOut = createSelector(
   [selectModal],
   (modal) => modal.currentBatsmanWhoGotOut
@@ -20,6 +25,11 @@ export const selectBastmanWhoGotOut = createSelector(
 export const selectWicketModalHiddenValue = createSelector(
   [selectWicket],
   (wicket) => wicket.hidden
+);
+
+export const selectEndOfInningsHiddenValue = createSelector(
+  [selectEndOfInningsModal],
+  (eoi) => eoi.hidden
 );
 
 export const selectBowlerModalHiddenValue = createSelector(

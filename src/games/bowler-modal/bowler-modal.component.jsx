@@ -3,7 +3,12 @@ import { connect } from 'react-redux';
 import Modal from '../../Modal';
 import RenderInput from '../render-input/render-input.component';
 
-import { addBowler, moveBowler, setBowlerModal } from '../../actions';
+import {
+  addBowler,
+  moveBowler,
+  setBowlerModal,
+  setEndOfInnigsModal,
+} from '../../actions';
 import { BowlerHeader } from './bowler-modal.styles';
 import { createStructuredSelector } from 'reselect';
 import {
@@ -70,6 +75,12 @@ class BowlerModal extends React.Component {
       </div>
     );
   };
+
+  handleEndOfInningsModal = () => {
+    this.props.setBowlerModal(true);
+    this.props.setEndOfInnigsModal(false);
+  };
+
   onDismiss = () => {
     // this.props.setBowlerModal(true);
   };
@@ -77,7 +88,11 @@ class BowlerModal extends React.Component {
     <div>
       <button
         className='ui left floated button negative'
-        style={{ marginLeft: '0.1rem' }}>
+        style={{ marginLeft: '0.1rem' }}
+        onClick={(e) => {
+          e.stopPropagation();
+          this.handleEndOfInningsModal();
+        }}>
         <i className='close icon'></i>
         <label>End Match</label>
       </button>
@@ -122,4 +137,5 @@ export default connect(mapStateToProps, {
   setBowlerModal,
   moveBowler,
   addBowler,
+  setEndOfInnigsModal,
 })(BowlerModal);

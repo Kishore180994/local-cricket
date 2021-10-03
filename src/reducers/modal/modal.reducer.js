@@ -1,5 +1,10 @@
 import undoable from 'redux-undo';
-import { WICKET_MODAL, OUT_BATSMAN, BOWLER_MODAL } from '../../actions/types';
+import {
+  WICKET_MODAL,
+  OUT_BATSMAN,
+  BOWLER_MODAL,
+  END_OF_THE_INNIGS_MODAL,
+} from '../../actions/types';
 
 const INITIAL_STATE = {
   wicket: {
@@ -7,6 +12,9 @@ const INITIAL_STATE = {
     type: '',
   },
   bowlerModal: {
+    hidden: true,
+  },
+  eoiModal: {
     hidden: true,
   },
   currentBatsmanWhoGotOut: null,
@@ -18,6 +26,11 @@ const modalReducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         wicket: { hidden: action.payload.value, type: action.payload.type },
+      };
+    case END_OF_THE_INNIGS_MODAL:
+      return {
+        ...state,
+        eoiModal: { hidden: action.payload },
       };
     case BOWLER_MODAL:
       return {
