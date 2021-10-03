@@ -363,7 +363,11 @@ export const addRunsToPlayerObjectOnRunOut = (curScore, runOutruns) => {
     // Add runs to striker.
     striker: {
       ...striker,
-      batting: { ...batting, runs: batting.runs + runOutruns },
+      batting: {
+        ...batting,
+        runs: batting.runs + runOutruns,
+        balls: batting.balls + 1,
+      },
     },
     // Add runs to bowler.
     bowler: {
