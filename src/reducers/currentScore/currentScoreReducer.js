@@ -13,6 +13,7 @@ import {
   SWAP_STRIKER,
   SWAP_STRIKER_FORCE,
   ADD_RUNS_TO_PLAYER,
+  SWITCH_INNINGS,
 } from '../../actions/types';
 import { PLAYER_STATE, TEAM_STATE } from '../../states';
 import {
@@ -28,6 +29,7 @@ import {
   addBowler,
   moveCurrentBowler,
   addRunsToPlayerObjectOnRunOut,
+  switchInnings,
 } from './currentScore.utils';
 
 const INITIAL_STATE = {
@@ -93,6 +95,9 @@ const currentScoreReducer = (state = INITIAL_STATE, action) => {
 
     case ADD_RUNS_TO_PLAYER:
       return addRunsToPlayerObjectOnRunOut(newState, action.payload);
+
+    case SWITCH_INNINGS:
+      return switchInnings(newState);
 
     default:
       return state;

@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { createStructuredSelector } from 'reselect';
+import styled from 'styled-components';
 import { selectMatchId } from '../reducers/currentScore/currentScore.selectors';
 import GoogleAuth from './GoogleAuth';
 

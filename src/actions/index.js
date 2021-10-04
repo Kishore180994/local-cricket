@@ -22,6 +22,7 @@ import {
   MOVE_BOWLER,
   ADD_RUNS_TO_PLAYER,
   END_OF_THE_INNIGS_MODAL,
+  SWITCH_INNINGS,
 } from './types';
 
 export const signIn = (userId) => {
@@ -200,5 +201,11 @@ export const setBatsmanOut = (id) => async (dispatch) => {
   dispatch({
     type: OUT_BATSMAN,
     payload: id,
+  });
+};
+
+export const switchInnings = () => async (dispatch) => {
+  dispatch({
+    type: SWITCH_INNINGS,
   });
 };

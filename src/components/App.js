@@ -1,6 +1,5 @@
 import { Route, Router, Switch } from 'react-router-dom';
 import Header from './Header';
-import HomePage from './HomePage';
 import history from '../history';
 import GameCreate from '../games/GameCreate';
 import GameView from '../games/GameView';
@@ -9,13 +8,16 @@ import FullScoreCard from '../games/full-score-card/full-score-card.component';
 import { createStructuredSelector } from 'reselect';
 import { selectMatchId } from '../reducers/currentScore/currentScore.selectors';
 import { connect } from 'react-redux';
+import HomePage from './HomePage/HomePage.component';
+import styled from 'styled-components';
 
+const MainContainer = styled.div``;
 function App({ matchId }) {
   return (
-    <div className='ui component'>
+    <MainContainer className='ui component'>
       <Router history={history}>
         <div>
-          <Header />
+          {matchId ? <Header /> : null}
           <Switch>
             <Route
               path='/'
@@ -29,7 +31,7 @@ function App({ matchId }) {
           </Switch>
         </div>
       </Router>
-    </div>
+    </MainContainer>
   );
 }
 

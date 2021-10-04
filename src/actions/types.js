@@ -41,6 +41,8 @@ export const END_OF_THE_INNIGS_MODAL = 'END_OF_THE_INNIGS_MODAL';
 export const MOVE_PLAYER = 'MOVE_PLAYER';
 export const MOVE_BOWLER = 'MOVE_BOWLER';
 
+export const SWITCH_INNINGS = 'SWITCH_INNINGS';
+
 // WICKET TYPE
 export const BOWLED = 'BOWLED!!!';
 export const CAUGHT_OUT = 'CAUGHT OUT!!!';

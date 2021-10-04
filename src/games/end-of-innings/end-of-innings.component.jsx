@@ -1,11 +1,13 @@
 import React from 'react';
+import history from '../../history.js';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
-import { setEndOfInnigsModal } from '../../actions';
+import { setEndOfInnigsModal, switchInnings } from '../../actions';
 import Modal from '../../Modal';
 import {
   selectBowlingTeam,
-  selectFirstInnigs,
+  selectBattingTeam,
+  selectMatchId,
   selectTotalBallsPlayed,
 } from '../../reducers/currentScore/currentScore.selectors';
 import { convertBallsToOvers } from '../../util';
@@ -13,12 +15,18 @@ import { MainContent, MainSection, SubSection } from './end-of-innings.styles';
 import { getSubHeading } from './end-of-innings.utils';
 
 class EndOfInnings extends React.Component {
+  handleSubmit = (e) => {
+    e.stopPropagation();
+    this.props.switchInnings();
+    history.push(`/games/view/${this.props.matchId}`);
+    this.props.setEOIHidden(true);
+  };
   renderContent = () => {
-    const { stats, toss, choose } = this.props.firstInnings;
+    const { stats, toss, choose } = this.props.battingTeam;
     return (
       <MainContent>
         <MainSection>
-          <div className='team-name'>{this.props.firstInnings.name}</div>
+          <div className='team-name'>{this.props.battingTeam.name}</div>
           <div className='team-sub'>{getSubHeading(toss, choose)}</div>
         </MainSection>
         <SubSection>
@@ -26,8 +34,8 @@ class EndOfInnings extends React.Component {
             <div className='score'>
               <label className='score-label'>Total Score</label>
               <div className='score-numbers'>
-                <div className='score-runs'>{stats.totalRuns}</div>
-                <div className='score-wickets'>{stats.totalWickets}</div>
+                <div className='score-runs'>{stats.totalRuns || 0}</div>/
+                <div className='score-wickets'>{stats.totalWickets || 0}</div>
               </div>
             </div>
             <div className='overs'>
@@ -47,7 +55,11 @@ class EndOfInnings extends React.Component {
   };
   renderActions = () => (
     <div>
-      <button className='ui positive button'>Start Second Innings</button>
+      <button
+        className='ui positive button'
+        onClick={(e) => this.handleSubmit(e)}>
+        Start Second Innings
+      </button>
       <button
         className='ui negative button'
         onClick={(e) => {
@@ -71,13 +83,15 @@ class EndOfInnings extends React.Component {
 }
 
 const mapStateToProps = createStructuredSelector({
-  firstInnings: selectFirstInnigs,
+  matchId: selectMatchId,
+  battingTeam: selectBattingTeam,
   totalBalls: selectTotalBallsPlayed,
   bowlingTeam: selectBowlingTeam,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   setEOIHidden: (val) => dispatch(setEndOfInnigsModal(val)),
+  switchInnings: () => dispatch(switchInnings()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(EndOfInnings);

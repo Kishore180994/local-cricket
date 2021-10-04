@@ -4,7 +4,7 @@ import { createStructuredSelector } from 'reselect';
 import Accordion from '../../components/accordion/accordion.component';
 import {
   selectBowler,
-  selectFirstInnigs,
+  selectBattingTeam,
   selectNonStriker,
   selectStriker,
 } from '../../reducers/currentScore/currentScore.selectors';
@@ -21,7 +21,7 @@ const FullScoreCard = ({ firstInnings, striker, nonStriker, bowler }) => {
 };
 
 const mapStateToProps = createStructuredSelector({
-  firstInnings: selectFirstInnigs,
+  firstInnings: selectBattingTeam,
   striker: selectStriker,
   nonStriker: selectNonStriker,
   bowler: selectBowler,

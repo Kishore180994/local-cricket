@@ -12,7 +12,7 @@ export const selectTeam2 = createSelector(
   (curScore) => curScore.present.team2
 );
 
-export const selectFirstInnigs = createSelector(
+export const selectBattingTeam = createSelector(
   [selectTeam1, selectTeam2],
   (team1, team2) => {
     return team1.isBatting ? team1 : team2;
@@ -20,9 +20,8 @@ export const selectFirstInnigs = createSelector(
 );
 
 export const selectBowlingTeam = createSelector(
-  [selectCurrentScore],
-  (curScore) => {
-    const { team1, team2 } = curScore.present;
+  [selectTeam1, selectTeam2],
+  (team1, team2) => {
     return team1.isBatting ? team2 : team1;
   }
 );
@@ -48,7 +47,7 @@ export const selectBowler = createSelector(
 );
 
 export const selectStats = createSelector(
-  [selectFirstInnigs],
+  [selectBattingTeam],
   (firstInnings) => firstInnings.stats
 );
 

@@ -19,12 +19,15 @@ export const matchInit = (curScore, formValues) => {
     wpr,
   } = formValues;
   let isTeam1Batting = false;
+  let isFirstInnings = false;
   if (toss === 'firstTeam') {
     isTeam1Batting = choose.toLowerCase() === 'batting' ? true : false;
+    isFirstInnings = choose.toLowerCase() === 'batting' ? true : false;
   }
 
   if (toss === 'secondTeam') {
     isTeam1Batting = choose.toLowerCase() === 'batting' ? false : true;
+    isFirstInnings = choose.toLowerCase() === 'batting' ? false : true;
   }
   return {
     ...curScore,
@@ -37,6 +40,7 @@ export const matchInit = (curScore, formValues) => {
       toss: toss === 'firstTeam' ? true : false,
       choose: toss === 'firstTeam' ? choose : '',
       isBatting: isTeam1Batting,
+      isFirstInnings: isFirstInnings,
     },
     team2: {
       ...team2,
@@ -45,8 +49,35 @@ export const matchInit = (curScore, formValues) => {
       toss: toss === 'secondTeam' ? true : false,
       choose: toss === 'secondTeam' ? choose : '',
       isBatting: !isTeam1Batting,
+      isFirstInnings: !isFirstInnings,
     },
   };
+};
+
+export const switchInnings = (curScore) => {
+  // Add bowler to players of bowling team.
+  const updatedCurScore = moveCurrentBowler(curScore);
+
+  const { striker, nonStriker } = updatedCurScore;
+  // Add striker and non striker to players of batting team.
+  const battingTeam = getCurrentBattingTeam(updatedCurScore);
+  const updatedPlayers = [...battingTeam.players, striker, nonStriker];
+  const updatedBattingTeam = { ...battingTeam, players: updatedPlayers };
+  // Added striker, nonstriker and bowler to the respective objects.
+  const newState = {
+    ...updatedCurScore,
+    [battingTeam.objName]: updatedBattingTeam,
+  };
+  // Switch the team1 and team2
+  _.set(newState, 'team1.isBatting', false);
+  _.set(newState, 'team2.isBatting', true);
+
+  //Adding defaults
+  _.set(newState, 'striker', { ...PLAYER_STATE });
+  _.set(newState, 'nonStriker', { ...PLAYER_STATE });
+  _.set(newState, 'bowler', { ...PLAYER_STATE });
+
+  return newState;
 };
 
 export const getCurrentBattingTeam = (curScore) => {
@@ -102,7 +133,7 @@ export const addRunUtil = (curScore, run) => {
   // (TODO) Check if the innings ends
   oversInInnings = addRunWicketToOver(totalBalls, thisOver, run);
 
-  const newStriker = {
+  const updatedStriker = {
     ...curScore.striker,
     batting: {
       runs: strikerScore,
@@ -115,7 +146,7 @@ export const addRunUtil = (curScore, run) => {
     },
   };
 
-  const newStats = {
+  const updatedStats = {
     ...currentBattingTeam.stats,
     totalRuns: totalRuns + run,
     totalBalls: totalBallsBowledInThisInnigs || 0,
@@ -123,15 +154,18 @@ export const addRunUtil = (curScore, run) => {
     currentRunRate: getCurRunRate(totalRuns + run, totalBalls + 1),
   };
 
-  const newBowler = {
+  const updatedBowler = {
     ...curScore.bowler,
     bowling: { ...bowling, runs: bowlerRuns, balls: bowlerBalls },
   };
   return {
     ...curScore,
-    striker: newStriker,
-    [currentBattingTeam.objName]: { ...currentBattingTeam, stats: newStats },
-    bowler: newBowler,
+    striker: updatedStriker,
+    [currentBattingTeam.objName]: {
+      ...currentBattingTeam,
+      stats: updatedStats,
+    },
+    bowler: updatedBowler,
   };
 };
 
