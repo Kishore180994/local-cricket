@@ -18,9 +18,24 @@ export const InputContainer = styled.div`
     width: 70%;
     margin-right: 1rem;
     .search {
-      input:placeholder-shown {
+      /* for Opera,webkit chrome browsers */
+      input::-webkit-input-placeholder {
+        color: ${(props) => (props.error ? 'red' : 'none')};
+      }
+      /*firefox 19+ versions*/
+      input::-moz-placeholder {
+        color: ${(props) => (props.error ? 'red' : 'none')};
+      }
+      /*IE  versions*/
+      input::-ms-placeholder {
+        color: ${(props) => (props.error ? 'red' : 'none')};
+      }
+      /*Latest modern browsers */
+
+      input::placeholder {
         font-size: small;
         overflow-wrap: break-word;
+        color: ${(props) => (props.error ? 'red' : 'none')};
       }
       .items {
         margin-top: 2em;

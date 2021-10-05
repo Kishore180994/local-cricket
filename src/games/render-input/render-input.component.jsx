@@ -10,15 +10,17 @@ const RenderInput = ({
   options,
   value,
   onValueChange,
+  onBlurField,
   dropDownPlaceHolder,
   modalType,
+  error,
   ...otherProps
 }) => {
   const [open, setOpen] = useState(false);
   const [selectedObjectFromList, setPlayer] = useState(PLAYER_STATE);
 
   return (
-    <InputContainer>
+    <InputContainer error={error}>
       <span className='ui right pointing black label'>{label}</span>
       <div className='parent'>
         <div className='ui loading fluid search selection dropdown'>
@@ -26,6 +28,7 @@ const RenderInput = ({
             className='search'
             placeholder={placeholder}
             value={value}
+            onBlur={onBlurField}
             onClick={() => setOpen(!open)}
             onChange={(e) => onValueChange(e)}
             {...otherProps}

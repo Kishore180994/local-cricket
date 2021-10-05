@@ -11,12 +11,31 @@ import {
   selectBattingTeam,
   selectBowlingTeam,
 } from '../reducers/currentScore/currentScore.selectors';
+import RenderInput from './render-input/render-input.component';
 
 class GameView extends React.Component {
+  state = {
+    striker: {
+      value: '',
+      touched: false,
+    },
+    nonStriker: {
+      value: '',
+      touched: false,
+    },
+    bowler: {
+      value: '',
+      touched: false,
+    },
+  };
+
   renderActions() {
+    const { striker, nonStriker, bowler } = this.state;
+    let isValuesFilled = striker.value && nonStriker.value && bowler.value;
+    const submitClass = `ui button green ${isValuesFilled ? '' : 'disabled'}`;
     return (
       <Fragment>
-        <button type='submit' form='myForm' className='ui button green'>
+        <button onClick={() => this.onSubmit()} className={submitClass}>
           Start Match
         </button>
         <Link to='/games/create' className='ui button negative'>
@@ -26,79 +45,75 @@ class GameView extends React.Component {
     );
   }
 
-  renderError = ({ error, touched }) => {
-    if (touched && error) {
-      return (
-        <div className='ui error message'>
-          <div className='header'>{error}</div>
-        </div>
-      );
-    }
-  };
-
-  renderInput = ({ input, label, meta }) => {
-    const className = `field ${meta.error && meta.touched ? 'error' : ''}`;
-    return (
-      <div className={className}>
-        <label>{label}</label>
-        <input {...input} />
-        {this.renderError(meta)}
-      </div>
-    );
-  };
-
-  onSubmit = (formValues) => {
+  onSubmit = () => {
     const { id } = this.props.match.params;
-    this.props.addStriker(formValues.striker);
-    this.props.addNonStriker(formValues.nonStriker);
-    this.props.addBowler(formValues.bowler);
+    this.props.addStriker(this.state.striker.value);
+    this.props.addNonStriker(this.state.nonStriker.value);
+    this.props.addBowler(this.state.bowler.value);
     history.push(`/games/play/${id}`);
   };
 
   renderContent() {
+    const { battingTeam, bowlingTeam } = this.props;
+    const { striker, nonStriker, bowler } = this.state;
+    const battingTeamPlayers = battingTeam.players;
+    const bowlingTeamPlayers = bowlingTeam.players;
+
     return (
       <Fragment>
-        <Form
-          onSubmit={this.onSubmit}
-          validate={(formValues) => {
-            const errors = {};
-
-            if (!formValues.striker) {
-              errors.striker = 'Enter Batsman Name.';
-            }
-
-            if (!formValues.nonStriker) {
-              errors.nonStriker = 'Enter Batsman Name.';
-            }
-
-            if (!formValues.bowler) {
-              errors.bowler = 'Enter Bowler Name.';
-            }
-
-            return errors;
-          }}
-          render={({ handleSubmit }) => (
-            <form id='myForm' onSubmit={handleSubmit} className='ui form error'>
-              <Field
-                name='striker'
-                component={this.renderInput}
-                label='Enter Striker Name'
-                playerType='batting'
-              />
-              <Field
-                name='nonStriker'
-                component={this.renderInput}
-                label='Enter Non-striker Name'
-                playerType='batting'
-              />
-              <Field
-                name='bowler'
-                component={this.renderInput}
-                label='Enter Bowler Name'
-                playerType='batting'
-              />
-            </form>
+        <RenderInput
+          label='Striker'
+          placeholder='Enter new or select batsman'
+          options={battingTeamPlayers.filter(
+            (player) => player.batting.status !== 'OUT'
           )}
+          value={this.state.striker.value}
+          onValueChange={(e) =>
+            this.setState({ striker: { ...striker, value: e.target.value } })
+          }
+          error={!striker.value && striker.touched ? true : false}
+          onBlurField={() =>
+            this.setState({ striker: { ...striker, touched: true } })
+          }
+          dropDownPlaceHolder='Enter new Batsman name!'
+          modalType='batsman'
+          required
+        />
+        <RenderInput
+          label='Non Striker'
+          placeholder='Enter new or select batsman'
+          options={battingTeamPlayers.filter(
+            (player) => player.batting.status !== 'OUT'
+          )}
+          error={!nonStriker.value && nonStriker.touched ? true : false}
+          value={this.state.nonStriker.value}
+          onValueChange={(e) =>
+            this.setState({
+              nonStriker: { ...nonStriker, value: e.target.value },
+            })
+          }
+          onBlurField={() =>
+            this.setState({ nonStriker: { ...nonStriker, touched: true } })
+          }
+          dropDownPlaceHolder='Enter new Batsman name!'
+          modalType='batsman'
+          required
+        />
+        <RenderInput
+          label='Bowler'
+          placeholder='Enter new or select bowler'
+          options={bowlingTeamPlayers}
+          value={this.state.bowler.value}
+          error={!bowler.value && bowler.touched ? true : false}
+          onValueChange={(e) =>
+            this.setState({ bowler: { ...bowler, value: e.target.value } })
+          }
+          onBlurField={() =>
+            this.setState({ bowler: { ...bowler, touched: true } })
+          }
+          dropDownPlaceHolder='Enter new bowler name!'
+          modalType='bowler'
+          required
         />
       </Fragment>
     );
