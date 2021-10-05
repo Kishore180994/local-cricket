@@ -15,11 +15,11 @@ import {
 import { createStructuredSelector } from 'reselect';
 
 import {
-  selectBastmanWhoGotOut,
   selectWicketModalHiddenValue,
   selectWicketType,
 } from '../../reducers/modal/modal.selectors';
 import {
+  selectBattingTeam,
   selectBattingTeamScore,
   selectBattingTeamWickets,
   selectNonStriker,
@@ -44,6 +44,7 @@ import {
   RETIRED_HURT,
 } from '../../actions/types';
 import { getStrikeRate } from '../../util';
+import RenderInput from '../render-input/render-input.component';
 
 class WicketModal extends React.Component {
   state = {
@@ -150,7 +151,7 @@ class WicketModal extends React.Component {
               runOutCheckedValue === striker.name ? striker : nonStriker;
             this.setState({ currentBatsmanWhoGotOut: outRole });
             await movePlayer(outRole.playerId);
-            if (outRole.name === striker.name)
+            if (outRole.playerId === striker.playerId)
               await addStriker(chooseNextBatsman);
             else {
               await addNonStriker(chooseNextBatsman);
@@ -218,6 +219,11 @@ class WicketModal extends React.Component {
     setBatsmanOut(outObject);
   };
 
+  onValueChange = (e, batsmanObject) => {
+    e.stopPropagation();
+    this.setState({ chooseNextBatsman: e.target.value });
+  };
+
   setBattingSide = (e, val) => {
     e.stopPropagation();
     this.setState({ chooseNextBatsmanSide: val });
@@ -264,14 +270,18 @@ class WicketModal extends React.Component {
       name,
       batting: { runs, balls, fours, sixes },
     } = batsManWhoGotOut;
-    const { teamScore, teamWickets } = this.props;
+    const {
+      teamScore,
+      teamWickets,
+      currentBattingTeam: { players },
+    } = this.props;
     return (
       <React.Fragment>
         <BastmanHeader>
           <span className='name'>{name}</span>
           <span className='score'>
             <span className='runs'>{runs}</span>
-            <span className='balls'>({balls})</span>
+            <span className='balls'>({balls + 1})</span>
           </span>
           <span className='bowler'>
             <span className='wicket-type'>b</span>
@@ -286,7 +296,7 @@ class WicketModal extends React.Component {
             <span className='fours'>Fours: {fours}</span>
             <span className='sixes'>Sixes: {sixes}</span>
           </span>
-          <span>SR: {getStrikeRate(runs, balls)}</span>
+          <span>SR: {getStrikeRate(runs, balls + 1)}</span>
         </StatsHeader>
         <NextBatsman>
           <div className='ui divider'></div>
@@ -316,10 +326,10 @@ class WicketModal extends React.Component {
             </div>
           ) : null}
           <span className='container'>
-            <div className='ui black ribbon label'>Next Batsman</div>
+            {/* <div className='ui black ribbon label'>Next Batsman</div> */}
             <form id='myform'>
               <div className='ui input'>
-                <input
+                {/* <input
                   type='text'
                   placeholder='Next Batsman'
                   value={this.state.chooseNextBatsman}
@@ -327,6 +337,18 @@ class WicketModal extends React.Component {
                     e.stopPropagation();
                     this.setState({ chooseNextBatsman: e.target.value });
                   }}
+                  required
+                /> */}
+                <RenderInput
+                  label='Next Batsman'
+                  placeholder='Enter new or select batsman'
+                  options={players.filter(
+                    (player) => player.batting.status !== 'OUT'
+                  )}
+                  value={this.state.chooseNextBatsman}
+                  onValueChange={this.onValueChange}
+                  dropDownPlaceHolder='Enter new Batsman name!'
+                  modalType='batsman'
                   required
                 />
               </div>
@@ -417,6 +439,7 @@ const mapStateToProps = createStructuredSelector({
   nonStriker: selectNonStriker,
   teamScore: selectBattingTeamScore,
   teamWickets: selectBattingTeamWickets,
+  currentBattingTeam: selectBattingTeam,
 });
 
 const mapDispatchToProps = (dispatch) => ({

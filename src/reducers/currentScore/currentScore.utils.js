@@ -278,7 +278,10 @@ export const movePlayer = (curScore, id) => {
       striker: { ...PLAYER_STATE },
       [currentBattingTeam.objName]: {
         ...currentBattingTeam,
-        players: [...players, striker],
+        players: [
+          ...players,
+          { ...striker, batting: { ...striker.batting, status: 'OUT' } },
+        ],
       },
     };
   } else if (nonStriker.playerId === id) {
@@ -287,7 +290,10 @@ export const movePlayer = (curScore, id) => {
       nonStriker: { ...PLAYER_STATE },
       [currentBattingTeam.objName]: {
         ...currentBattingTeam,
-        players: [...players, nonStriker],
+        players: [
+          ...players,
+          { ...nonStriker, batting: { ...nonStriker.batting, status: 'OUT' } },
+        ],
       },
     };
   }

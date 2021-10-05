@@ -67,9 +67,13 @@ class BowlerModal extends React.Component {
         <RenderInput
           label='Next bowler'
           placeholder='Enter new or Select bowler*'
-          options={players}
+          options={players.filter(
+            (player) => player.playerId !== this.props.currentBowler.playerId
+          )}
           value={this.state.bowler}
           onValueChange={this.onValueChange}
+          dropDownPlaceHolder='No bowlers yet!! Enter the new Bowler name!!'
+          modalType='bowler'
           required
         />
       </div>

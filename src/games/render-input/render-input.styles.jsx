@@ -4,21 +4,24 @@ export const InputContainer = styled.div`
   display: flex;
   justify-content: space-between;
   transform: rotateY('90deg');
-
+  width: 100%;
   .label {
     width: 30%;
     text-align: center;
-    height: 3em;
-    line-height: 2em;
+    height: 4em;
+    line-height: 1.4em;
     background-color: black;
     color: white;
-    animation: labelAnim 1s normal ease-in-out 0.3s;
-    animation-fill-mode: backwards;
+    overflow-wrap: break-word;
   }
   .parent {
     width: 70%;
     margin-right: 1rem;
     .search {
+      input:placeholder-shown {
+        font-size: small;
+        overflow-wrap: break-word;
+      }
       .items {
         margin-top: 2em;
         .item {
@@ -29,10 +32,10 @@ export const InputContainer = styled.div`
             color: grey;
             cursor: pointer;
             .header {
-              width: 50%;
+              width: 40%;
             }
             .score {
-              width: 25%;
+              width: 45%;
             }
             .overs {
               width: 25%;

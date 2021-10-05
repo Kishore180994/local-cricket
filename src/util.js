@@ -6,7 +6,8 @@ export const convertOversToBalls = (overs) => {
   return overs * 6;
 };
 
-export const getStrikeRate = (runs = 0, balls) => (runs / balls) * 100;
+export const getStrikeRate = (runs = 0, balls) =>
+  ((runs / balls) * 100).toFixed(2);
 
 export const getCurRunRate = (runs, balls) => {
   const over = Math.trunc(balls / 6);

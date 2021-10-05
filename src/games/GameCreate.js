@@ -103,74 +103,69 @@ class GameCreate extends Component {
 
   render() {
     return (
-      <Form
-        onSubmit={this.onFormSubmit}
-        validate={this.validate}
-        initialValues={this.initialData}>
-        {({ handleSubmit, form, values }) => (
-          <form className='ui form container' onSubmit={handleSubmit}>
-            <label className='ui header center aligned container'>
-              Match Settings
-            </label>
-            <div className='field'>
-              <Field
-                className='item'
-                name='firstTeam'
-                type='text'
-                label='Enter Team1'
-                component={this.renderInput}
-              />
-              <Field
-                className='item'
-                name='secondTeam'
-                type='text'
-                label='Enter Team2'
-                component={this.renderInput}>
-                {/* {(fieldState) => (
-                  <pre>{JSON.stringify(fieldState, undefined, 2)}</pre>
-                )} */}
-              </Field>
-              <Field
-                name='toss'
-                label='Who won the toss?'
-                options={{ firstTeam: 'Team1', secondTeam: 'Team2' }}
-                component={this.renderSelect}>
-                {/* {(fieldState) => (
-                  <pre>{JSON.stringify(fieldState, undefined, 2)}</pre>
-                )} */}
-              </Field>
-              <Field
-                name='choose'
-                label='Choose Batting/Bowling'
-                options={{ batting: 'Batting', bowling: 'Bowling' }}
-                component={this.renderSelect}
-              />
-              <MatchSettings
-                Field={Field}
-                form={form}
-                renderCheck={this.renderCheck}
-                renderInput={this.renderInput}
-              />
-              {/* <pre>{JSON.stringify(values, undefined, 2)}</pre> */}
-              <div className='button-container'>
-                <button
-                  className='ui button negative four wide column'
-                  onClick={() => {
-                    form.reset();
-                    this.clearAllForms();
-                  }}>
-                  clear
-                </button>
-                <button
-                  className='ui button primary four wide column'
-                  type='submit'>
-                  Submit
-                </button>
+      <div style={{ margin: '10% 0' }}>
+        <Form
+          onSubmit={this.onFormSubmit}
+          validate={this.validate}
+          initialValues={this.initialData}>
+          {({ handleSubmit, form, values }) => (
+            <form className='ui form container' onSubmit={handleSubmit}>
+              <label className='ui header center aligned container'>
+                Match Settings
+              </label>
+              <div className='field'>
+                <Field
+                  className='item'
+                  name='firstTeam'
+                  type='text'
+                  label='Enter Team1'
+                  component={this.renderInput}
+                />
+                <Field
+                  className='item'
+                  name='secondTeam'
+                  type='text'
+                  label='Enter Team2'
+                  component={this.renderInput}>
+                  )} */}
+                </Field>
+                <Field
+                  name='toss'
+                  label='Who won the toss?'
+                  options={{ firstTeam: 'Team1', secondTeam: 'Team2' }}
+                  component={this.renderSelect}>
+                  )} */}
+                </Field>
+                <Field
+                  name='choose'
+                  label='Choose Batting/Bowling'
+                  options={{ batting: 'Batting', bowling: 'Bowling' }}
+                  component={this.renderSelect}
+                />
+                <MatchSettings
+                  Field={Field}
+                  form={form}
+                  renderCheck={this.renderCheck}
+                  renderInput={this.renderInput}
+                />
+                <div className='button-container'>
+                  <button
+                    className='ui button negative'
+                    onClick={() => {
+                      form.reset();
+                      this.clearAllForms();
+                    }}>
+                    clear
+                  </button>
+                  <button className='ui button primary' type='submit'>
+                    Submit
+                  </button>
+                </div>
               </div>
-            </div>
-          </form>
-        )}
-      </Form>
+            </form>
+          )}
+        </Form>
+      </div>
     );
   }
 }

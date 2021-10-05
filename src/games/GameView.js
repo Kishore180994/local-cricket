@@ -6,6 +6,11 @@ import { Form, Field } from 'react-final-form';
 import { connect } from 'react-redux';
 import { addStriker, addNonStriker, addBowler } from '../actions';
 import history from '../history';
+import { createStructuredSelector } from 'reselect';
+import {
+  selectBattingTeam,
+  selectBowlingTeam,
+} from '../reducers/currentScore/currentScore.selectors';
 
 class GameView extends React.Component {
   renderActions() {
@@ -36,14 +41,13 @@ class GameView extends React.Component {
     return (
       <div className={className}>
         <label>{label}</label>
-        <input {...input} autoComplete='off' />
+        <input {...input} />
         {this.renderError(meta)}
       </div>
     );
   };
 
   onSubmit = (formValues) => {
-    console.log('Values Submitted!!', this.props, formValues);
     const { id } = this.props.match.params;
     this.props.addStriker(formValues.striker);
     this.props.addNonStriker(formValues.nonStriker);
@@ -79,16 +83,19 @@ class GameView extends React.Component {
                 name='striker'
                 component={this.renderInput}
                 label='Enter Striker Name'
+                playerType='batting'
               />
               <Field
                 name='nonStriker'
                 component={this.renderInput}
-                label='Enter Striker Name'
+                label='Enter Non-striker Name'
+                playerType='batting'
               />
               <Field
                 name='bowler'
                 component={this.renderInput}
                 label='Enter Bowler Name'
+                playerType='batting'
               />
             </form>
           )}
@@ -108,11 +115,10 @@ class GameView extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  return {
-    curScore: state.curScore,
-  };
-};
+const mapStateToProps = createStructuredSelector({
+  battingTeam: selectBattingTeam,
+  bowlingTeam: selectBowlingTeam,
+});
 
 export default connect(mapStateToProps, {
   addStriker,

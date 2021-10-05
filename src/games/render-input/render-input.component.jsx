@@ -10,6 +10,8 @@ const RenderInput = ({
   options,
   value,
   onValueChange,
+  dropDownPlaceHolder,
+  modalType,
   ...otherProps
 }) => {
   const [open, setOpen] = useState(false);
@@ -28,7 +30,7 @@ const RenderInput = ({
             onChange={(e) => onValueChange(e)}
             {...otherProps}
           />
-          {options ? (
+          {options.length ? (
             <div className='items'>
               {open ? (
                 options.map((option) => {
@@ -47,10 +49,29 @@ const RenderInput = ({
                       }}>
                       <div className='content'>
                         <div className='header'>{option.name}</div>
-                        <div className='score'>{option.bowling.runs}</div>
-                        <div className='overs'>
-                          {convertBallsToOvers(option.bowling.balls)} over(s)
-                        </div>
+                        {modalType === 'bowler' ? (
+                          <React.Fragment>
+                            <div className='score'>{option.bowling.runs}</div>
+                            <div className='overs'>
+                              {convertBallsToOvers(option.bowling.balls)}{' '}
+                              over(s)
+                            </div>
+                          </React.Fragment>
+                        ) : (
+                          <React.Fragment>
+                            <div className='score'>
+                              <span>{option.batting.runs}</span>
+                              <span
+                                style={{
+                                  fontStyle: 'italic',
+                                  fontSize: 'smaller',
+                                }}>
+                                ({option.batting.balls} balls)
+                              </span>
+                            </div>
+                            <div className='overs'>{option.batting.status}</div>
+                          </React.Fragment>
+                        )}
                       </div>
                     </div>
                   );
@@ -71,7 +92,7 @@ const RenderInput = ({
             <div
               className='items'
               style={{ fontSize: '0.8em', color: 'grey', textAlign: 'center' }}>
-              No bowlers yet!! Enter the new Bowler name!!
+              {dropDownPlaceHolder}
             </div>
           )}
         </div>

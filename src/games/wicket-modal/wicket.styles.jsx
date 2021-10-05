@@ -74,8 +74,10 @@ export const NextBatsman = styled.div`
   width: 100%;
   .container {
     display: flex;
+    width: 90%;
     form {
-      width: 65%;
+      width: 100%;
+
       .input {
         width: 100%;
       }
