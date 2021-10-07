@@ -23,6 +23,8 @@ import {
   ADD_RUNS_TO_PLAYER,
   END_OF_THE_INNIGS_MODAL,
   SWITCH_INNINGS,
+  CLEAR_UNDO_HISTORY,
+  OVERS_DONE,
 } from './types';
 
 export const signIn = (userId) => {
@@ -207,5 +209,17 @@ export const setBatsmanOut = (id) => async (dispatch) => {
 export const switchInnings = () => async (dispatch) => {
   dispatch({
     type: SWITCH_INNINGS,
+  });
+};
+
+export const clearUndoHistory = () => async (dispatch) => {
+  dispatch({
+    type: CLEAR_UNDO_HISTORY,
+  });
+};
+
+export const oversFinished = () => async (dispatch) => {
+  dispatch({
+    type: OVERS_DONE,
   });
 };

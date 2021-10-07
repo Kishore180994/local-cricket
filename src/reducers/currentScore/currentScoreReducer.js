@@ -14,6 +14,7 @@ import {
   SWAP_STRIKER_FORCE,
   ADD_RUNS_TO_PLAYER,
   SWITCH_INNINGS,
+  CLEAR_UNDO_HISTORY,
 } from '../../actions/types';
 import { PLAYER_STATE, TEAM_STATE } from '../../states';
 import {
@@ -47,6 +48,7 @@ const INITIAL_STATE = {
     noball: false,
     byes: false,
     legbyes: false,
+    target: 0,
   },
 };
 
@@ -109,6 +111,6 @@ const undoableCurrentScoreReducer = undoable(currentScoreReducer, {
   filter: function filterActions(action, currentState, previousHistory) {
     return action.type !== SWAP_STRIKER || action.type !== SWAP_STRIKER_FORCE; // only add to history if action is SOME_ACTION
   },
-  debug: true,
+  clearHistoryType: CLEAR_UNDO_HISTORY,
 });
 export default undoableCurrentScoreReducer;

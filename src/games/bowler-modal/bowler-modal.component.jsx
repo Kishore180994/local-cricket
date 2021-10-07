@@ -30,7 +30,7 @@ class BowlerModal extends React.Component {
     if (this.state.bowlerObject) addBowler(this.state.bowlerObject);
     else if (this.state.bowler) addBowler(this.state.bowler);
     else console.log('Check bowler model component');
-    this.setState({ bowler: '', bowlerId: null });
+    this.setState({ bowler: '', bowlerObject: null });
     this.props.setBowlerModal(true);
   };
 
@@ -88,38 +88,44 @@ class BowlerModal extends React.Component {
   onDismiss = () => {
     // this.props.setBowlerModal(true);
   };
-  renderActions = () => (
-    <div>
-      <button
-        className='ui left floated button negative'
-        style={{ marginLeft: '0.1rem' }}
-        onClick={(e) => {
-          e.stopPropagation();
-          this.handleEndOfInningsModal();
-        }}>
-        <i className='close icon'></i>
-        <label>End Match</label>
-      </button>
-      <button
-        className='ui button'
-        form='myform'
-        onClick={(e) => {
-          e.stopPropagation();
-          this.handleSubmit();
-        }}>
-        Submit
-      </button>
-      <button
-        className='ui button negative'
-        onClick={(e) => {
-          e.preventDefault();
-          this.props.setBowlerModal(true);
-          // this.props.setBatsmanOut(null);
-        }}>
-        Cancel
-      </button>
-    </div>
-  );
+  renderActions = () => {
+    const { bowler, bowlerObject } = this.state;
+    const bowlerClassName = `ui button ${
+      bowler === '' && bowlerObject === null ? 'disabled' : ''
+    }`;
+    return (
+      <div>
+        <button
+          className='ui left floated button negative'
+          style={{ marginLeft: '0.1rem' }}
+          onClick={(e) => {
+            e.stopPropagation();
+            this.handleEndOfInningsModal();
+          }}>
+          <i className='close icon'></i>
+          <label>End Match</label>
+        </button>
+        <button
+          className={bowlerClassName}
+          form='myform'
+          onClick={(e) => {
+            e.stopPropagation();
+            this.handleSubmit();
+          }}>
+          Submit
+        </button>
+        <button
+          className='ui button negative'
+          onClick={(e) => {
+            e.preventDefault();
+            this.props.setBowlerModal(true);
+            // this.props.setBatsmanOut(null);
+          }}>
+          Cancel
+        </button>
+      </div>
+    );
+  };
   render() {
     return (
       <Modal

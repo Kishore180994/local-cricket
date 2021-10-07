@@ -8,20 +8,39 @@ import {
   selectNonStriker,
   selectStriker,
 } from '../../reducers/currentScore/currentScore.selectors';
+import {
+  selectFirstInnings,
+  selectSecondInnings,
+} from '../../reducers/currentScore/currentScore.staticSelectors';
 
-const FullScoreCard = ({ firstInnings, striker, nonStriker, bowler }) => {
+const FullScoreCard = ({
+  firstInnings,
+  secondInnings,
+  striker,
+  nonStriker,
+  bowler,
+}) => {
   return (
-    <Accordion
-      innings={firstInnings}
-      striker={striker}
-      nonStriker={nonStriker}
-      bowler={bowler}
-    />
+    <div>
+      <Accordion
+        innings={firstInnings}
+        striker={striker}
+        nonStriker={nonStriker}
+        bowler={bowler}
+      />
+      {/* <Accordion
+        innings={secondInnings}
+        striker={striker}
+        nonStriker={nonStriker}
+        bowler={bowler}
+      /> */}
+    </div>
   );
 };
 
 const mapStateToProps = createStructuredSelector({
-  firstInnings: selectBattingTeam,
+  firstInnings: selectFirstInnings,
+  secondInnings: selectSecondInnings,
   striker: selectStriker,
   nonStriker: selectNonStriker,
   bowler: selectBowler,

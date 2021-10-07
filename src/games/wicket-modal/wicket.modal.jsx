@@ -48,13 +48,19 @@ import RenderInput from '../render-input/render-input.component';
 
 class WicketModal extends React.Component {
   state = {
-    chooseNextBatsman: '',
+    chooseNextBatsman: null,
     chooseNextBatsmanSide: '',
+    currentBatsmanWhoGotOut: null,
     runOutCheckedValue: '',
     runsScoredOnRunOut: 0,
   };
 
-  componentWillUnmount() {}
+  onValueChange = (e, batsmanObject) => {
+    e.stopPropagation();
+    if (batsmanObject) this.setState({ chooseNextBatsman: batsmanObject });
+    else this.setState({ chooseNextBatsman: e.target.value });
+  };
+
   handleSubmit = async () => {
     const {
       striker,
@@ -70,9 +76,9 @@ class WicketModal extends React.Component {
       outStrikerActionOrder,
       addRunsToStrikerBeforeRunout,
     } = this.props;
-    const { chooseNextBatsmanSide, chooseNextBatsman, runOutCheckedValue } =
+    const { chooseNextBatsman, chooseNextBatsmanSide, runOutCheckedValue } =
       this.state;
-    if (this.state.chooseNextBatsman) {
+    if (chooseNextBatsman) {
       switch (wicketType) {
         case CAUGHT_OUT:
           this.setState({ currentBatsmanWhoGotOut: striker });
@@ -80,6 +86,7 @@ class WicketModal extends React.Component {
             if (chooseNextBatsmanSide === 'striker') {
               // Move the current striker to firstInnings players
               await movePlayer(striker.playerId);
+              // Choose next batsman can be either string or Object.
               await addStriker(chooseNextBatsman);
             } else if (chooseNextBatsmanSide === 'nonStriker') {
               // The batsman cross the half pitch and caught out.
@@ -177,7 +184,7 @@ class WicketModal extends React.Component {
           this.setState({ currentBatsmanWhoGotOut: striker });
           await addWicket(STUMP_OUT);
           await swapStriker();
-          this.setState({ chooseNextBatsman: '' });
+          this.setState({ chooseNextBatsman: null });
           setWicketModal(true);
           setBatsmanOut(null);
           break;
@@ -219,14 +226,9 @@ class WicketModal extends React.Component {
     setBatsmanOut(outObject);
   };
 
-  onValueChange = (e, batsmanObject) => {
-    e.stopPropagation();
-    this.setState({ chooseNextBatsman: e.target.value });
-  };
-
   setBattingSide = (e, val) => {
     e.stopPropagation();
-    this.setState({ chooseNextBatsmanSide: val });
+    this.setState({ chooseNextBatsmanText: val });
   };
 
   renderUnpredictedContent = (wicketType) => {
@@ -342,10 +344,20 @@ class WicketModal extends React.Component {
                 <RenderInput
                   label='Next Batsman'
                   placeholder='Enter new or select batsman'
-                  options={players.filter(
-                    (player) => player.batting.status !== 'OUT'
-                  )}
-                  value={this.state.chooseNextBatsman}
+                  options={players.filter((player) => {
+                    const outBatsman = this.props.batsManWhoGotOut
+                      ? this.props.batsManWhoGotOut
+                      : striker;
+                    return (
+                      player.batting.status !== 'OUT' &&
+                      player.playerId !== outBatsman.playerId
+                    );
+                  })}
+                  value={
+                    this.state.chooseNextBatsman === 'string'
+                      ? this.state.chooseNextBatsman
+                      : this.state.chooseNextBatsman?.name
+                  }
                   onValueChange={this.onValueChange}
                   dropDownPlaceHolder='Enter new Batsman name!'
                   modalType='batsman'
@@ -384,34 +396,39 @@ class WicketModal extends React.Component {
     </Content>
   );
 
-  renderActions = () => (
-    <div>
-      <button
-        className='ui left floated button negative'
-        style={{ marginLeft: '0.1rem' }}>
-        <i className='close icon'></i>
-        <label>End Match</label>
-      </button>
-      <button
-        className='ui button'
-        form='myform'
-        onClick={(e) => {
-          e.stopPropagation();
-          this.handleSubmit();
-        }}>
-        Submit
-      </button>
-      <button
-        className='ui button negative'
-        onClick={(e) => {
-          e.preventDefault();
-          this.props.setWicketModal(true);
-          this.props.setBatsmanOut(null);
-        }}>
-        Cancel
-      </button>
-    </div>
-  );
+  renderActions = () => {
+    const batsmanClassName = `ui button ${
+      this.state.chooseNextBatsman ? '' : 'disabled'
+    }`;
+    return (
+      <div>
+        <button
+          className='ui left floated button negative'
+          style={{ marginLeft: '0.1rem' }}>
+          <i className='close icon'></i>
+          <label>End Match</label>
+        </button>
+        <button
+          className={batsmanClassName}
+          form='myform'
+          onClick={(e) => {
+            e.stopPropagation();
+            this.handleSubmit();
+          }}>
+          Submit
+        </button>
+        <button
+          className='ui button negative'
+          onClick={(e) => {
+            e.preventDefault();
+            this.props.setWicketModal(true);
+            this.props.setBatsmanOut(null);
+          }}>
+          Cancel
+        </button>
+      </div>
+    );
+  };
 
   onDismiss = () => {
     this.props.setWicketModal(true);
@@ -447,9 +464,9 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(swapStrikerForce());
     dispatch(addStriker(name));
   },
-  outNonStrikerActionOrder: (name) => {
+  outNonStrikerActionOrder: (nameOrObject) => {
     dispatch(swapStrikerForce());
-    dispatch(addNonStriker(name));
+    dispatch(addNonStriker(nameOrObject));
   },
   setWicketModal: (val) => dispatch(setWicketModal(val)),
   swapStriker: () => dispatch(swapStriker()),

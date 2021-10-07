@@ -19,6 +19,11 @@ export const selectBattingTeam = createSelector(
   }
 );
 
+export const SelectIsCurrentInningsCompleted = createSelector(
+  [selectBattingTeam],
+  (team) => team.isInningsFinished
+);
+
 export const selectBowlingTeam = createSelector(
   [selectTeam1, selectTeam2],
   (team1, team2) => {
@@ -79,6 +84,11 @@ export const selectCurrentRunRate = createSelector(
 export const selectSettings = createSelector(
   [selectCurrentScore],
   (curScore) => curScore.present.settings
+);
+
+export const selectTarget = createSelector(
+  [selectSettings],
+  (settings) => settings.target
 );
 
 export const selectIsWidesEnabled = createSelector(

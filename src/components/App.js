@@ -10,6 +10,7 @@ import { selectMatchId } from '../reducers/currentScore/currentScore.selectors';
 import { connect } from 'react-redux';
 import HomePage from './HomePage/HomePage.component';
 import styled from 'styled-components';
+import PageNotFound from './PageNotFound/page-not-found.component';
 
 const MainContainer = styled.div``;
 function App({ matchId }) {
@@ -26,8 +27,13 @@ function App({ matchId }) {
             />
             <Route path='/games/create' exact component={GameCreate} />
             <Route path='/games/view/:id' exact component={GameView} />
-            <Route path='/games/play/:id' component={GamePlay} />
-            <Route path='/games/scorecard/:id' component={FullScoreCard} />
+            <Route path='/games/play/:id' exact component={GamePlay} />
+            <Route
+              path='/games/scorecard/:id'
+              exact
+              component={FullScoreCard}
+            />
+            <Route component={PageNotFound} />
           </Switch>
         </div>
       </Router>

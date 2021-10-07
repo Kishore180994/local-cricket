@@ -42,7 +42,9 @@ export const MOVE_PLAYER = 'MOVE_PLAYER';
 export const MOVE_BOWLER = 'MOVE_BOWLER';
 
 export const SWITCH_INNINGS = 'SWITCH_INNINGS';
+export const CLEAR_UNDO_HISTORY = 'CLEAR_UNDO_HISTORY';
 
+export const OVERS_DONE = 'OVERS_DONE';
 // WICKET TYPE
 export const BOWLED = 'BOWLED!!!';
 export const CAUGHT_OUT = 'CAUGHT OUT!!!';

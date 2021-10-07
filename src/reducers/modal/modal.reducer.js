@@ -4,6 +4,7 @@ import {
   OUT_BATSMAN,
   BOWLER_MODAL,
   END_OF_THE_INNIGS_MODAL,
+  SWITCH_INNINGS,
 } from '../../actions/types';
 
 const INITIAL_STATE = {
@@ -41,6 +42,14 @@ const modalReducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         currentBatsmanWhoGotOut: action.payload,
+      };
+
+    case SWITCH_INNINGS:
+      return {
+        ...state,
+        wicket: { hidden: true, type: '' },
+        bowlerModal: { hidden: true },
+        currentBatsmanWhoGotOut: null,
       };
 
     default:

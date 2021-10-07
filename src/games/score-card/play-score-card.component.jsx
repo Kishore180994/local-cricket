@@ -22,9 +22,21 @@ import {
 } from './play-score-card.styles';
 import { convertOversToBalls, getProjectedScore } from '../../util';
 import { renderOvers } from '../game-play/game-play.utils';
+import { selectIsFirstInnings } from '../../reducers/currentScore/currentScore.staticSelectors';
 
 class PlayScoreCard extends React.Component {
   render() {
+    const {
+      battingTeamScore,
+      battingTeamWickets,
+      striker,
+      nonStriker,
+      totalBallsPlayed,
+      bowler,
+      currentRunRate,
+      overs,
+      isFirstInnings,
+    } = this.props;
     return (
       <div className='ui segment container'>
         <div className='ui fluid card '>
@@ -38,9 +50,9 @@ class PlayScoreCard extends React.Component {
                   <label className='ui big teal horizontal label'>Score</label>
                   <div className='ui compact menu'>
                     <label className='item'>
-                      <div>{this.props.battingTeamScore || 0}</div>
+                      <div>{battingTeamScore || 0}</div>
                       <div className='floating ui red label'>
-                        {this.props.battingTeamWickets || 0}
+                        {battingTeamWickets || 0}
                       </div>
                     </label>
                   </div>
@@ -49,49 +61,44 @@ class PlayScoreCard extends React.Component {
                   <div className='ui middle aligned divided list'>
                     <div className='item'>
                       <div className='right floated content'>
-                        {this.props.striker.batting.runs || 0} (
-                        {this.props.striker.batting.balls || 0} balls)
+                        {striker.batting.runs || 0} (
+                        {striker.batting.balls || 0} balls)
                       </div>
                       <i className='user circle icon'></i>
                       <div
                         className='content'
                         style={{ fontWeight: 'bolder', fontSize: '1.2rem' }}>
-                        {this.props.striker.name}
+                        {striker.name}
                       </div>
                     </div>
                     <div className='item'>
                       <div className='right floated content'>
-                        {this.props.nonStriker.batting.runs || 0} (
-                        {this.props.nonStriker.batting.balls || 0} balls)
+                        {nonStriker.batting.runs || 0} (
+                        {nonStriker.batting.balls || 0} balls)
                       </div>
                       <i className='user circle icon'></i>
-                      <div className='content'>
-                        {this.props.nonStriker.name}
-                      </div>
+                      <div className='content'>{nonStriker.name}</div>
                     </div>
                   </div>
                 </ScoreColumn>
               </ScoreRow>
               <ScoreRow>
                 <ScoreColumn className='overs'>
-                  {renderOvers('Overs', this.props.totalBallsPlayed || 0)}
+                  {renderOvers('Overs', totalBallsPlayed || 0)}
                 </ScoreColumn>
                 <ScoreColumn className='bowler-score'>
                   <div className='ui middle aligned divided list'>
                     <div className='item'>
                       <div className='right floated content'>
-                        {`${this.props.bowler.bowling.runs || 0}/${
-                          this.props.bowler.bowling.wickets || 0
+                        {`${bowler.bowling.runs || 0}/${
+                          bowler.bowling.wickets || 0
                         } `}
                         <div className='ui label tiny teal tag '>
-                          {renderOvers(
-                            'Overs',
-                            this.props.bowler.bowling.balls || 0
-                          )}
+                          {renderOvers('Overs', bowler.bowling.balls || 0)}
                         </div>
                       </div>
                       <i className='user circle icon'></i>
-                      <div className='content'>{this.props.bowler.name}</div>
+                      <div className='content'>{bowler.name}</div>
                     </div>
                   </div>
                 </ScoreColumn>
@@ -108,17 +115,15 @@ class PlayScoreCard extends React.Component {
                       <label>
                         <i className='info circle icon'></i>Projected Score
                       </label>{' '}
-                      {getProjectedScore(
-                        this.props.currentRunRate,
-                        this.props.overs
-                      )}
+                      {isFirstInnings
+                        ? getProjectedScore(currentRunRate, overs)
+                        : ''}
                     </div>
                     <div>
                       <label>
                         <i className='info circle icon'></i>Balls left
                       </label>{' '}
-                      {convertOversToBalls(this.props.overs) -
-                        this.props.totalBallsPlayed}
+                      {convertOversToBalls(this.props.overs) - totalBallsPlayed}
                     </div>
                   </FooterColumn>
                   <FooterColumn>
@@ -126,16 +131,13 @@ class PlayScoreCard extends React.Component {
                       <label>
                         <i className='info circle icon'></i>Current Runrate
                       </label>{' '}
-                      {this.props.currentRunRate}
+                      {currentRunRate}
                     </div>
                     <div>
-                      {/*(TODO) For second innings */}
-                      {/* Wickets Remaining */}
-                      {/* <label>
-                        <i className='info circle icon'></i>[Remove]Required
-                        Runrate
+                      <label>
+                        <i className='info circle icon'></i>Required Runrate
                       </label>{' '}
-                      5Wickets Remaining */}
+                      {currentRunRate}
                     </div>
                   </FooterColumn>
                 </FooterRow>
@@ -151,6 +153,7 @@ class PlayScoreCard extends React.Component {
 const mapStateToProps = createStructuredSelector({
   battingTeamScore: selectBattingTeamScore,
   battingTeamWickets: selectBattingTeamWickets,
+  isFirstInnings: selectIsFirstInnings,
   nonStriker: selectNonStriker,
   striker: selectStriker,
   bowler: selectBowler,

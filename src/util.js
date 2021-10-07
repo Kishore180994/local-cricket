@@ -3,7 +3,8 @@ export const convertBallsToOvers = (balls) => {
 };
 
 export const convertOversToBalls = (overs) => {
-  return overs * 6;
+  if (!overs) return 0;
+  return parseInt(overs * 6);
 };
 
 export const getStrikeRate = (runs = 0, balls) =>

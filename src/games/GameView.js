@@ -2,7 +2,6 @@ import React from 'react';
 import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import Modal from '../Modal';
-import { Form, Field } from 'react-final-form';
 import { connect } from 'react-redux';
 import { addStriker, addNonStriker, addBowler } from '../actions';
 import history from '../history';
@@ -18,14 +17,17 @@ class GameView extends React.Component {
     striker: {
       value: '',
       touched: false,
+      objectData: null,
     },
     nonStriker: {
       value: '',
       touched: false,
+      objectData: null,
     },
     bowler: {
       value: '',
       touched: false,
+      objectData: null,
     },
   };
 
@@ -47,10 +49,27 @@ class GameView extends React.Component {
 
   onSubmit = () => {
     const { id } = this.props.match.params;
-    this.props.addStriker(this.state.striker.value);
-    this.props.addNonStriker(this.state.nonStriker.value);
-    this.props.addBowler(this.state.bowler.value);
+    const { addStriker, addNonStriker, addBowler } = this.props;
+    const { striker, nonStriker, bowler } = this.state;
+    if (striker.objectData) addStriker(striker.objectData);
+    else addStriker(striker.value);
+    if (nonStriker.objectData) addNonStriker(nonStriker.objectData);
+    else addNonStriker(nonStriker.value);
+    if (bowler.objectData) addBowler(bowler.objectData);
+    else addBowler(bowler.value);
     history.push(`/games/play/${id}`);
+  };
+
+  onValueChange = (text, stringOrObject, fieldType, stateField) => {
+    if (text) this.setState({ [fieldType]: { ...stateField, value: text } });
+    else if (typeof stringOrObject === 'object')
+      this.setState({
+        [fieldType]: {
+          ...stateField,
+          objectData: stringOrObject,
+          value: stringOrObject.name,
+        },
+      });
   };
 
   renderContent() {
@@ -68,8 +87,8 @@ class GameView extends React.Component {
             (player) => player.batting.status !== 'OUT'
           )}
           value={this.state.striker.value}
-          onValueChange={(e) =>
-            this.setState({ striker: { ...striker, value: e.target.value } })
+          onValueChange={(e, obj) =>
+            this.onValueChange(e.target.value, obj, 'striker', striker)
           }
           error={!striker.value && striker.touched ? true : false}
           onBlurField={() =>
@@ -87,10 +106,8 @@ class GameView extends React.Component {
           )}
           error={!nonStriker.value && nonStriker.touched ? true : false}
           value={this.state.nonStriker.value}
-          onValueChange={(e) =>
-            this.setState({
-              nonStriker: { ...nonStriker, value: e.target.value },
-            })
+          onValueChange={(e, obj) =>
+            this.onValueChange(e.target.value, obj, 'nonStriker', nonStriker)
           }
           onBlurField={() =>
             this.setState({ nonStriker: { ...nonStriker, touched: true } })
@@ -105,8 +122,8 @@ class GameView extends React.Component {
           options={bowlingTeamPlayers}
           value={this.state.bowler.value}
           error={!bowler.value && bowler.touched ? true : false}
-          onValueChange={(e) =>
-            this.setState({ bowler: { ...bowler, value: e.target.value } })
+          onValueChange={(e, obj) =>
+            this.onValueChange(e.target.value, obj, 'bowler', bowler)
           }
           onBlurField={() =>
             this.setState({ bowler: { ...bowler, touched: true } })

@@ -1,6 +1,10 @@
 import _, { uniqueId } from 'lodash';
 import { PLAYER_STATE } from '../../states';
-import { getCurRunRate } from '../../util';
+import {
+  convertBallsToOvers,
+  convertOversToBalls,
+  getCurRunRate,
+} from '../../util';
 import { v4 as uuidv4 } from 'uuid';
 import { RUN_OUT } from '../../actions/types';
 
@@ -58,7 +62,7 @@ export const switchInnings = (curScore) => {
   // Add bowler to players of bowling team.
   const updatedCurScore = moveCurrentBowler(curScore);
 
-  const { striker, nonStriker } = updatedCurScore;
+  const { striker, nonStriker, settings } = updatedCurScore;
   // Add striker and non striker to players of batting team.
   const battingTeam = getCurrentBattingTeam(updatedCurScore);
   const updatedPlayers = [...battingTeam.players, striker, nonStriker];
@@ -67,6 +71,7 @@ export const switchInnings = (curScore) => {
   const newState = {
     ...updatedCurScore,
     [battingTeam.objName]: updatedBattingTeam,
+    settings: { ...settings, target: updatedBattingTeam.stats.totalRuns },
   };
   // Switch the team1 and team2
   _.set(newState, 'team1.isBatting', false);
@@ -90,19 +95,33 @@ export const getCurrentOver = (overs) => {
   return overs.at(-1);
 };
 
-const addRunWicketToOver = (balls, thisOver, run) => {
+const addRunWicketToOver = (curScore, balls, thisOver, run) => {
+  let isInningsFinished = false;
+  const totalOvers = curScore.settings.overs;
   if (balls % 6 === 0) {
     //End the current over i.e, end the current array.
     //Start the new over ie., start the new array.
     const newOver = [run];
-    return [...thisOver, newOver];
+
+    // Check: If the total overs are completed.
+
+    return { updatedOver: [...thisOver, newOver], isInningsFinished };
   } else {
-    return thisOver.map((over, index) => {
+    let updatedOver = thisOver.map((over, index) => {
       if (thisOver.length === index + 1) {
         return [...over, run];
       }
       return over;
     });
+    console.log(
+      balls,
+      convertOversToBalls(totalOvers),
+      balls === convertOversToBalls(totalOvers)
+    );
+    if (balls + 1 >= convertOversToBalls(totalOvers)) {
+      isInningsFinished = true;
+    }
+    return { updatedOver, isInningsFinished };
   }
 };
 
@@ -129,10 +148,13 @@ export const addRunUtil = (curScore, run) => {
   const bowlerRuns = bowling.runs + run;
   const bowlerBalls = bowling.balls + 1;
   const totalBallsBowledInThisInnigs = totalBalls + 1;
-  let oversInInnings = thisOver;
-  // (TODO) Check if the innings ends
-  oversInInnings = addRunWicketToOver(totalBalls, thisOver, run);
-
+  let { updatedOver, isInningsFinished } = addRunWicketToOver(
+    curScore,
+    totalBalls,
+    thisOver,
+    run
+  );
+  let oversInInnings = updatedOver;
   const updatedStriker = {
     ...curScore.striker,
     batting: {
@@ -163,6 +185,7 @@ export const addRunUtil = (curScore, run) => {
     striker: updatedStriker,
     [currentBattingTeam.objName]: {
       ...currentBattingTeam,
+      isInningsFinished,
       stats: updatedStats,
     },
     bowler: updatedBowler,
@@ -178,7 +201,13 @@ export const addWicket = (curScore, wicket) => {
   const {
     bowling: { balls, wickets },
   } = bowler;
-  const oversInInnings = addRunWicketToOver(totalBalls, thisOver, 'W');
+  let { updatedOver, isInningsFinished } = addRunWicketToOver(
+    curScore,
+    totalBalls,
+    thisOver,
+    'W'
+  );
+  let oversInInnings = updatedOver;
   const newStats = {
     ...currentBattingTeam.stats,
     totalBalls: totalBalls + 1 || 0,
@@ -199,7 +228,11 @@ export const addWicket = (curScore, wicket) => {
 
   return {
     ...curScore,
-    [currentBattingTeam.objName]: { ...currentBattingTeam, stats: newStats },
+    [currentBattingTeam.objName]: {
+      ...currentBattingTeam,
+      isInningsFinished,
+      stats: newStats,
+    },
     bowler: newBowler,
   };
 };
@@ -218,11 +251,13 @@ export const addExtra = (curScore, extraType, extraRuns) => {
   const extraRunsRevised =
     extraType === 'b' || extraType === 'lb' ? extraRuns : extraRuns - 1;
   const extraBallsRevised = extraType === 'b' || extraType === 'lb' ? 1 : 0;
-  const oversInInnings = addRunWicketToOver(
+  let { updatedOver, isInningsFinished } = addRunWicketToOver(
+    curScore,
     totalBalls,
     thisOver,
     extraType + extraRunsRevised
   );
+  let oversInInnings = updatedOver;
   const newStats = {
     ...currentBattingTeam.stats,
     totalBalls: currentBattingTeam.stats.totalBalls + extraBallsRevised,
@@ -245,6 +280,7 @@ export const addExtra = (curScore, extraType, extraRuns) => {
     ...curScore,
     [currentBattingTeam.objName]: {
       ...currentBattingTeam,
+      isInningsFinished,
       stats: newStats,
     },
     striker: {
@@ -265,63 +301,93 @@ export const swapStrikerUtil = (curScore) => {
   return curScore;
 };
 
+//(TODO)
 export const movePlayer = (curScore, id) => {
   const currentBattingTeam = getCurrentBattingTeam(curScore);
-  const {
-    striker,
-    nonStriker,
-    [currentBattingTeam.objName]: { players },
-  } = curScore;
-  if (striker.playerId === id) {
-    return {
-      ...curScore,
-      striker: { ...PLAYER_STATE },
-      [currentBattingTeam.objName]: {
-        ...currentBattingTeam,
-        players: [
-          ...players,
-          { ...striker, batting: { ...striker.batting, status: 'OUT' } },
-        ],
-      },
-    };
-  } else if (nonStriker.playerId === id) {
-    return {
-      ...curScore,
-      nonStriker: { ...PLAYER_STATE },
-      [currentBattingTeam.objName]: {
-        ...currentBattingTeam,
-        players: [
-          ...players,
-          { ...nonStriker, batting: { ...nonStriker.batting, status: 'OUT' } },
-        ],
-      },
-    };
-  }
-
-  return curScore;
-};
-
-export const addStriker = (curScore, name) => {
-  const { striker } = curScore;
-  const p_id = striker.playerId ? striker.playerId : uuidv4();
+  const { striker, nonStriker } = curScore;
+  const isPlayerInList = isPlayerInTheList(
+    striker.playerId === id ? striker : nonStriker,
+    currentBattingTeam.players
+  );
+  let outBatsman = striker.playerId === id ? striker : nonStriker;
+  outBatsman = { ...outBatsman, batting: { status: 'OUT' } };
+  const outField = striker.playerId === id ? 'striker' : 'nonStriker';
   return {
     ...curScore,
-    striker: { ...striker, name: name, playerId: p_id, order: uniqueId() },
-  };
-};
-
-export const addNonStriker = (curScore, name) => {
-  const { nonStriker } = curScore;
-  const p_id = nonStriker.playerId ? nonStriker.playerId : uuidv4();
-  return {
-    ...curScore,
-    nonStriker: {
-      ...nonStriker,
-      name: name,
-      playerId: p_id,
-      order: uniqueId(),
+    [outField]: { ...PLAYER_STATE },
+    [currentBattingTeam.objName]: {
+      ...currentBattingTeam,
+      players: isPlayerInList
+        ? currentBattingTeam.players.map((player) =>
+            player.playerId === outBatsman.playerId ? outBatsman : player
+          )
+        : [
+            ...currentBattingTeam.players,
+            {
+              ...outBatsman,
+              batting: { ...outBatsman.batting },
+            },
+          ],
     },
   };
+};
+
+export const addStriker = (curScore, nameOrObject) => {
+  //  Add striker to the list of batting team players.
+  //  Parameters:
+  // curScore: State object
+  // nameOrObject: This parameter can be of two types - string or an Object.
+  //          If the the parameter type is string, then the entry refers to new
+  //          bowler. if the paramter type is object, then the entry refers to
+  //          exisiting bowler object.
+  // Returns: "state" object.
+  const { striker } = curScore;
+  const p_id = striker.playerId ? striker.playerId : uuidv4();
+  if (typeof nameOrObject === 'string') {
+    return {
+      ...curScore,
+      striker: {
+        ...striker,
+        name: nameOrObject,
+        playerId: p_id,
+        order: uniqueId(),
+      },
+    };
+  } else if (typeof nameOrObject === 'object') {
+    return {
+      ...curScore,
+      striker: nameOrObject,
+    };
+  }
+};
+
+export const addNonStriker = (curScore, nameOrObject) => {
+  //  Add nonStriker to the list of batting team players.
+  //  Parameters:
+  // curScore: State object
+  // nameOrObject: This parameter can be of two types - string or an Object.
+  //          If the the parameter type is string, then the entry refers to new
+  //          bowler. if the paramter type is object, then the entry refers to
+  //          exisiting bowler object.
+  // Returns: "state" object.
+  const { nonStriker } = curScore;
+  const p_id = nonStriker.playerId ? nonStriker.playerId : uuidv4();
+  if (typeof nameOrObject === 'string') {
+    return {
+      ...curScore,
+      nonStriker: {
+        ...nonStriker,
+        name: nameOrObject,
+        playerId: p_id,
+        order: uniqueId(),
+      },
+    };
+  } else if (typeof nameOrObject === 'object') {
+    return {
+      ...curScore,
+      nonStriker: nameOrObject,
+    };
+  }
 };
 
 export const addBowler = (curScore, nameOrObject) => {
@@ -368,9 +434,9 @@ export const moveCurrentBowler = (curScore) => {
   };
 };
 
-export const isPlayerInTheList = (player, team) => {
+export const isPlayerInTheList = (player, teamPlayers) => {
   // Boolean function to determine if the player is already in the list.
-  const foundPlayer = team.filter(
+  const foundPlayer = teamPlayers.filter(
     (eachPlayer) => eachPlayer.playerId === player.playerId
   );
 

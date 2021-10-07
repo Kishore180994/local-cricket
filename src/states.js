@@ -31,6 +31,7 @@ export const TEAM_STATE = {
   name: '',
   isBatting: false,
   isFirstInnings: false,
+  isInningsFinished: false,
   objName: '',
   players: [],
   stats: {

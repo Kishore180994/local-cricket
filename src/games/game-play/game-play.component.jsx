@@ -24,6 +24,7 @@ import {
 } from '../../reducers/dropDown/dropDown.selectors';
 import {
   selectIsByesEnabled,
+  SelectIsCurrentInningsCompleted,
   selectIsLegByesEnabled,
   selectIsNoBallEnabled,
   selectIsWidesEnabled,
@@ -49,6 +50,10 @@ import {
 } from '../../actions/types';
 import BowlerModal from '../bowler-modal/bowler-modal.component';
 import EndOfInnings from '../end-of-innings/end-of-innings.component';
+import {
+  selectIsFirstInningsFinished,
+  selectIsSecondInningsFinished,
+} from '../../reducers/currentScore/currentScore.staticSelectors';
 
 class GamePlay extends Component {
   constructor() {
@@ -188,12 +193,20 @@ class GamePlay extends Component {
   }
 
   render() {
-    const { isWicketModalHidden, isBowlerModalHidden, isEoiModalHidden } =
-      this.props;
+    const {
+      isWicketModalHidden,
+      isBowlerModalHidden,
+      isEoiModalHidden,
+      isCurrentInningsCompleted,
+    } = this.props;
     return (
       <React.Fragment>
         {isWicketModalHidden ? null : <WicketModal />}
-        {isBowlerModalHidden ? null : <BowlerModal />}
+        {isCurrentInningsCompleted ? (
+          <EndOfInnings />
+        ) : isBowlerModalHidden ? null : (
+          <BowlerModal />
+        )}
         {isEoiModalHidden ? null : <EndOfInnings />}
         <div>
           {this.renderBalls()}
@@ -216,6 +229,9 @@ const mapStateToProps = createStructuredSelector({
   isWicketModalHidden: selectWicketModalHiddenValue,
   isBowlerModalHidden: selectBowlerModalHiddenValue,
   isEoiModalHidden: selectEndOfInningsHiddenValue,
+  isFirstInningsCompleted: selectIsFirstInningsFinished,
+  isCurrentInningsCompleted: SelectIsCurrentInningsCompleted,
+  isSecondInningsCompleted: selectIsSecondInningsFinished,
   isWidesEnabled: selectIsWidesEnabled,
   isNoBallEnabled: selectIsNoBallEnabled,
   isByesEnabled: selectIsByesEnabled,

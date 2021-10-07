@@ -2,17 +2,23 @@ import React from 'react';
 import history from '../../history.js';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
-import { setEndOfInnigsModal, switchInnings } from '../../actions';
+import {
+  clearUndoHistory,
+  setEndOfInnigsModal,
+  switchInnings,
+} from '../../actions';
 import Modal from '../../Modal';
 import {
   selectBowlingTeam,
   selectBattingTeam,
   selectMatchId,
   selectTotalBallsPlayed,
+  selectOvers,
 } from '../../reducers/currentScore/currentScore.selectors';
-import { convertBallsToOvers } from '../../util';
+import { convertBallsToOvers, convertOversToBalls } from '../../util';
 import { MainContent, MainSection, SubSection } from './end-of-innings.styles';
 import { getSubHeading } from './end-of-innings.utils';
+import { selectIsFirstInningsFinished } from '../../reducers/currentScore/currentScore.staticSelectors.js';
 
 class EndOfInnings extends React.Component {
   handleSubmit = (e) => {
@@ -20,6 +26,7 @@ class EndOfInnings extends React.Component {
     this.props.switchInnings();
     history.push(`/games/view/${this.props.matchId}`);
     this.props.setEOIHidden(true);
+    this.props.clearUndoHistory();
   };
   renderContent = () => {
     const { stats, toss, choose } = this.props.battingTeam;
@@ -47,29 +54,34 @@ class EndOfInnings extends React.Component {
           </div>
           <div className='innings-text'>
             {this.props.bowlingTeam.name} need {stats.totalRuns + 1} runs to win
-            from {this.props.totalBalls} balls.
+            from {convertOversToBalls(this.props.totalOvers)} balls.
           </div>
         </SubSection>
       </MainContent>
     );
   };
-  renderActions = () => (
-    <div>
-      <button
-        className='ui positive button'
-        onClick={(e) => this.handleSubmit(e)}>
-        Start Second Innings
-      </button>
-      <button
-        className='ui negative button'
-        onClick={(e) => {
-          e.preventDefault();
-          this.props.setEOIHidden(true);
-        }}>
-        Cancel
-      </button>
-    </div>
-  );
+  renderActions = () => {
+    const cancelClassName = `ui negative button ${
+      this.props.isFirstInningsFinished ? 'disabled' : ''
+    }`;
+    return (
+      <div>
+        <button
+          className='ui positive button'
+          onClick={(e) => this.handleSubmit(e)}>
+          Start Second Innings
+        </button>
+        <button
+          className={cancelClassName}
+          onClick={(e) => {
+            e.preventDefault();
+            this.props.setEOIHidden(true);
+          }}>
+          Cancel
+        </button>
+      </div>
+    );
+  };
   render() {
     return (
       <Modal
@@ -85,13 +97,16 @@ class EndOfInnings extends React.Component {
 const mapStateToProps = createStructuredSelector({
   matchId: selectMatchId,
   battingTeam: selectBattingTeam,
+  isFirstInningsFinished: selectIsFirstInningsFinished,
   totalBalls: selectTotalBallsPlayed,
   bowlingTeam: selectBowlingTeam,
+  totalOvers: selectOvers,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   setEOIHidden: (val) => dispatch(setEndOfInnigsModal(val)),
   switchInnings: () => dispatch(switchInnings()),
+  clearUndoHistory: () => dispatch(clearUndoHistory()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(EndOfInnings);
