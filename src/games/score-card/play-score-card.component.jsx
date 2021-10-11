@@ -9,6 +9,7 @@ import {
   selectNonStriker,
   selectOvers,
   selectStriker,
+  selectTarget,
   selectTotalBallsPlayed,
 } from '../../reducers/currentScore/currentScore.selectors';
 import {
@@ -112,12 +113,21 @@ class PlayScoreCard extends React.Component {
                   <FooterColumn>
                     {/* Projected score = currentRunRate*TotalOvers */}
                     <div>
-                      <label>
-                        <i className='info circle icon'></i>Projected Score
-                      </label>{' '}
-                      {isFirstInnings
-                        ? getProjectedScore(currentRunRate, overs)
-                        : ''}
+                      {isFirstInnings ? (
+                        <React.Fragment>
+                          <label>
+                            <i className='info circle icon'></i>Projected Score
+                          </label>
+                          {getProjectedScore(currentRunRate, overs)}
+                        </React.Fragment>
+                      ) : (
+                        <React.Fragment>
+                          <label>
+                            <i className='info circle icon'></i>Required runs
+                          </label>
+                          {this.props.target}
+                        </React.Fragment>
+                      )}
                     </div>
                     <div>
                       <label>
@@ -155,6 +165,7 @@ const mapStateToProps = createStructuredSelector({
   battingTeamWickets: selectBattingTeamWickets,
   isFirstInnings: selectIsFirstInnings,
   nonStriker: selectNonStriker,
+  target: selectTarget,
   striker: selectStriker,
   bowler: selectBowler,
   overs: selectOvers,

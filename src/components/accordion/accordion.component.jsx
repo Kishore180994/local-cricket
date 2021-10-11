@@ -26,6 +26,8 @@ class Accordion extends React.Component {
   render() {
     const {
       bowler,
+      striker,
+      nonStriker,
       innings: {
         name,
         toss,
@@ -57,7 +59,6 @@ class Accordion extends React.Component {
             </div>
           </div>
         </div>
-
         {!this.state.open ? (
           <div className='mini-content'>
             <div className='container'>
@@ -93,24 +94,28 @@ class Accordion extends React.Component {
           <div className='content'>
             <div className='batting'>
               <div className='team-name'>
-                <label className='main-label'>Team1</label>
+                <label className='main-label'>{name}</label>
               </div>
               <div className='score'>
                 <div className='ui middle aligned divided list'>
-                  <div className='item'>
-                    <div className='player'>
-                      <div className='player-name'>Sachin</div>
-                      <div className='player-status'>Not out</div>
-                    </div>
-                    <div className='player-score'>234(84)</div>
-                  </div>
-                  <div className='item'>
-                    <div className='player'>
-                      <div className='player-name'>Sehwag</div>
-                      <div className='player-status'>Not out</div>
-                    </div>
-                    <div className='player-score'>234(84)</div>
-                  </div>
+                  {[...players, striker, nonStriker]
+                    .sort((a, b) => a.order - b.order)
+                    .map((player) => {
+                      const {
+                        batting: { runs, balls, status },
+                      } = player;
+                      return (
+                        <div className='item' key={player.playerId}>
+                          <div className='player'>
+                            <div className='player-name'>{player.name}</div>
+                            <div className='player-status'>{status}</div>
+                          </div>
+                          <div className='player-score'>
+                            {runs}({balls})
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
             </div>

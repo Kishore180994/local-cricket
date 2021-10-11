@@ -12,7 +12,9 @@ import HomePage from './HomePage/HomePage.component';
 import styled from 'styled-components';
 import PageNotFound from './PageNotFound/page-not-found.component';
 
-const MainContainer = styled.div``;
+const MainContainer = styled.div`
+  overflow: hidden;
+`;
 function App({ matchId }) {
   return (
     <MainContainer className='ui component'>

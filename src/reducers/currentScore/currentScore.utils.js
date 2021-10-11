@@ -98,6 +98,12 @@ export const getCurrentOver = (overs) => {
 const addRunWicketToOver = (curScore, balls, thisOver, run) => {
   let isInningsFinished = false;
   const totalOvers = curScore.settings.overs;
+  //Check for target runs acheived by opponent team.
+  const currentBattingTeam = getCurrentBattingTeam(curScore);
+  const { totalRuns } = currentBattingTeam.stats;
+  const { target } = curScore.settings;
+  if (totalRuns >= target) isInningsFinished = true;
+
   if (balls % 6 === 0) {
     //End the current over i.e, end the current array.
     //Start the new over ie., start the new array.
@@ -113,11 +119,6 @@ const addRunWicketToOver = (curScore, balls, thisOver, run) => {
       }
       return over;
     });
-    console.log(
-      balls,
-      convertOversToBalls(totalOvers),
-      balls === convertOversToBalls(totalOvers)
-    );
     if (balls + 1 >= convertOversToBalls(totalOvers)) {
       isInningsFinished = true;
     }
@@ -129,7 +130,7 @@ export const addRunUtil = (curScore, run) => {
   const currentBattingTeam = getCurrentBattingTeam(curScore);
   const {
     striker: {
-      batting: { runs, balls, ones, twos, threes, fours, sixes },
+      batting: { runs, balls, ones, twos, threes, fours, sixes, status },
     },
     [currentBattingTeam.objName]: {
       stats: { thisOver, totalBalls, totalRuns },
@@ -158,6 +159,7 @@ export const addRunUtil = (curScore, run) => {
   const updatedStriker = {
     ...curScore.striker,
     batting: {
+      status,
       runs: strikerScore,
       balls: strikerBalls,
       ones: StrikerOnes,
@@ -310,7 +312,10 @@ export const movePlayer = (curScore, id) => {
     currentBattingTeam.players
   );
   let outBatsman = striker.playerId === id ? striker : nonStriker;
-  outBatsman = { ...outBatsman, batting: { status: 'OUT' } };
+  outBatsman = {
+    ...outBatsman,
+    batting: { ...outBatsman.batting, status: 'OUT' },
+  };
   const outField = striker.playerId === id ? 'striker' : 'nonStriker';
   return {
     ...curScore,

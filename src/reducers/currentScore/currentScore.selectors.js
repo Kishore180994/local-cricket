@@ -88,7 +88,7 @@ export const selectSettings = createSelector(
 
 export const selectTarget = createSelector(
   [selectSettings],
-  (settings) => settings.target
+  (settings) => settings.target + 1
 );
 
 export const selectIsWidesEnabled = createSelector(

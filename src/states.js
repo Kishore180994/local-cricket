@@ -7,7 +7,7 @@ export const PLAYER_STATE = {
   bat: BENCH,
   bowl: false,
   batting: {
-    status: 'NOT_OUT',
+    status: 'NOT OUT',
     runs: 0,
     balls: 0,
     fours: 0,

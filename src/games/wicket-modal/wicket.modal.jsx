@@ -228,7 +228,7 @@ class WicketModal extends React.Component {
 
   setBattingSide = (e, val) => {
     e.stopPropagation();
-    this.setState({ chooseNextBatsmanText: val });
+    this.setState({ chooseNextBatsmanSide: val });
   };
 
   renderUnpredictedContent = (wicketType) => {

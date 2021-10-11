@@ -40,8 +40,6 @@ const INITIAL_STATE = {
   bowler: JSON.parse(JSON.stringify({ ...PLAYER_STATE })),
   team1: JSON.parse(JSON.stringify(TEAM_STATE)),
   team2: JSON.parse(JSON.stringify(TEAM_STATE)),
-  // firstInnings: JSON.parse(JSON.stringify(TEAM_STATE)),
-  // secondInnings: JSON.parse(JSON.stringify(TEAM_STATE)),
   settings: {
     overs: 0,
     widesPerRun: 0,
