@@ -1,5 +1,4 @@
 import { Route, Router, Switch } from 'react-router-dom';
-import Header from './Header';
 import history from '../history';
 import GameCreate from '../games/GameCreate';
 import GameView from '../games/GameView';
@@ -11,6 +10,7 @@ import { connect } from 'react-redux';
 import HomePage from './HomePage/HomePage.component';
 import styled from 'styled-components';
 import PageNotFound from './PageNotFound/page-not-found.component';
+import Header from './Header/Header.component';
 
 const MainContainer = styled.div`
   overflow: hidden;
