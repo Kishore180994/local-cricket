@@ -1,16 +1,17 @@
 import React from 'react';
 import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import Modal from '../Modal';
+
 import { connect } from 'react-redux';
-import { addStriker, addNonStriker, addBowler } from '../actions';
-import history from '../history';
+import { addStriker, addNonStriker, addBowler } from '../../actions';
+import history from '../../history';
 import { createStructuredSelector } from 'reselect';
 import {
   selectBattingTeam,
   selectBowlingTeam,
-} from '../reducers/currentScore/currentScore.selectors';
-import RenderInput from './render-input/render-input.component';
+} from '../../reducers/currentScore/currentScore.selectors';
+import RenderInput from '../render-input/render-input.component';
+import Modal from '../../Modal';
 
 class GameView extends React.Component {
   state = {
@@ -139,6 +140,7 @@ class GameView extends React.Component {
   render() {
     return (
       <Modal
+        onDismiss={() => {}}
         header='Add player details'
         content={this.renderContent()}
         actions={this.renderActions()}

@@ -1,12 +1,14 @@
 import _, { uniqueId } from 'lodash';
 import { PLAYER_STATE } from '../../states';
-import {
-  convertBallsToOvers,
-  convertOversToBalls,
-  getCurRunRate,
-} from '../../util';
+import { convertOversToBalls, getCurRunRate } from '../../util';
 import { v4 as uuidv4 } from 'uuid';
-import { RUN_OUT } from '../../actions/types';
+import {
+  BOWLER,
+  NON_BOWLER,
+  NON_STRIKER,
+  RUN_OUT,
+  STRIKER,
+} from '../../actions/types';
 
 export const matchInit = (curScore, formValues) => {
   const { team1, team2 } = curScore;
@@ -59,35 +61,36 @@ export const matchInit = (curScore, formValues) => {
 };
 
 export const switchInnings = (curScore) => {
-  // Add bowler to players of bowling team.
-  const updatedCurScore = moveCurrentBowler(curScore);
-
-  const { striker, nonStriker, settings } = updatedCurScore;
-  // Add striker and non striker to players of batting team.
-  const battingTeam = getCurrentBattingTeam(updatedCurScore);
-  const updatedPlayers = [...battingTeam.players, striker, nonStriker];
-  const updatedBattingTeam = { ...battingTeam, players: updatedPlayers };
-  // Added striker, nonstriker and bowler to the respective objects.
-  const newState = {
-    ...updatedCurScore,
-    [battingTeam.objName]: updatedBattingTeam,
-    settings: { ...settings, target: updatedBattingTeam.stats.totalRuns },
-  };
   // Switch the team1 and team2
-  _.set(newState, 'team1.isBatting', false);
-  _.set(newState, 'team2.isBatting', true);
-
-  //Adding defaults
-  _.set(newState, 'striker', { ...PLAYER_STATE });
-  _.set(newState, 'nonStriker', { ...PLAYER_STATE });
-  _.set(newState, 'bowler', { ...PLAYER_STATE });
-
-  return newState;
+  const currentBattingTeam = getCurrentBattingTeam(curScore);
+  const currentBowlingTeam = getCurrentBowlingTeam(curScore);
+  // _.set(curScore, 'team1.isBatting', false);
+  // _.set(curScore, 'team2.isBatting', true);
+  return {
+    ...curScore,
+    settings: {
+      ...curScore.settings,
+      target: currentBattingTeam.stats.totalRuns + 1,
+    },
+    [currentBattingTeam.objName]: {
+      ...currentBattingTeam,
+      isBatting: false,
+    },
+    [currentBowlingTeam.objName]: {
+      ...currentBowlingTeam,
+      isBatting: true,
+    },
+  };
 };
 
 export const getCurrentBattingTeam = (curScore) => {
   const { team1, team2 } = curScore;
   return team1.isBatting ? team1 : team2;
+};
+
+export const getCurrentBowlingTeam = (curScore) => {
+  const { team1, team2 } = curScore;
+  return team1.isBatting ? team2 : team1;
 };
 
 export const getCurrentOver = (overs) => {
@@ -97,12 +100,16 @@ export const getCurrentOver = (overs) => {
 
 const addRunWicketToOver = (curScore, balls, thisOver, run) => {
   let isInningsFinished = false;
+  let isMatchFinsihed = false;
   const totalOvers = curScore.settings.overs;
   //Check for target runs acheived by opponent team.
   const currentBattingTeam = getCurrentBattingTeam(curScore);
   const { totalRuns } = currentBattingTeam.stats;
   const { target } = curScore.settings;
-  if (totalRuns >= target) isInningsFinished = true;
+  if (totalRuns + run >= target) {
+    isInningsFinished = true;
+    isMatchFinsihed = true;
+  }
 
   if (balls % 6 === 0) {
     //End the current over i.e, end the current array.
@@ -110,8 +117,11 @@ const addRunWicketToOver = (curScore, balls, thisOver, run) => {
     const newOver = [run];
 
     // Check: If the total overs are completed.
-
-    return { updatedOver: [...thisOver, newOver], isInningsFinished };
+    return {
+      updatedOver: [...thisOver, newOver],
+      isInningsFinished,
+      isMatchFinsihed,
+    };
   } else {
     let updatedOver = thisOver.map((over, index) => {
       if (thisOver.length === index + 1) {
@@ -122,22 +132,26 @@ const addRunWicketToOver = (curScore, balls, thisOver, run) => {
     if (balls + 1 >= convertOversToBalls(totalOvers)) {
       isInningsFinished = true;
     }
-    return { updatedOver, isInningsFinished };
+    return { updatedOver, isInningsFinished, isMatchFinsihed };
   }
 };
 
 export const addRunUtil = (curScore, run) => {
   const currentBattingTeam = getCurrentBattingTeam(curScore);
-  const {
-    striker: {
-      batting: { runs, balls, ones, twos, threes, fours, sixes, status },
-    },
-    [currentBattingTeam.objName]: {
-      stats: { thisOver, totalBalls, totalRuns },
-    },
-    bowler: { bowling },
-  } = curScore;
+  const currentBowlingTeam = getCurrentBowlingTeam(curScore);
+  let currentStriker = getCurrentStriker(curScore);
+  let currentBowler = getCurrentBowler(curScore);
   // Update stats
+  const {
+    batting: { runs, balls, fours, sixes, ones, twos, threes },
+  } = currentStriker;
+
+  const { bowling } = currentBowler;
+
+  const {
+    stats: { totalRuns, totalBalls, thisOver },
+  } = currentBattingTeam;
+
   const strikerScore = runs + run;
   const strikerBalls = balls + 1;
   const StrikerOnes = run === 1 ? ones + 1 : ones;
@@ -149,17 +163,17 @@ export const addRunUtil = (curScore, run) => {
   const bowlerRuns = bowling.runs + run;
   const bowlerBalls = bowling.balls + 1;
   const totalBallsBowledInThisInnigs = totalBalls + 1;
-  let { updatedOver, isInningsFinished } = addRunWicketToOver(
+  let { updatedOver, isInningsFinished, isMatchFinsihed } = addRunWicketToOver(
     curScore,
     totalBalls,
     thisOver,
     run
   );
   let oversInInnings = updatedOver;
+
   const updatedStriker = {
-    ...curScore.striker,
+    ...currentStriker,
     batting: {
-      status,
       runs: strikerScore,
       balls: strikerBalls,
       ones: StrikerOnes,
@@ -179,31 +193,40 @@ export const addRunUtil = (curScore, run) => {
   };
 
   const updatedBowler = {
-    ...curScore.bowler,
+    ...currentBowler,
     bowling: { ...bowling, runs: bowlerRuns, balls: bowlerBalls },
   };
   return {
     ...curScore,
-    striker: updatedStriker,
+    isMatchFinsihed,
     [currentBattingTeam.objName]: {
       ...currentBattingTeam,
       isInningsFinished,
       stats: updatedStats,
+      players: currentBattingTeam.players.map((player) =>
+        player.playerId === updatedStriker.playerId ? updatedStriker : player
+      ),
     },
-    bowler: updatedBowler,
+    [currentBowlingTeam.objName]: {
+      ...currentBowlingTeam,
+      players: currentBowlingTeam.players.map((player) =>
+        player.playerId === updatedBowler.playerId ? updatedBowler : player
+      ),
+    },
   };
 };
 
 export const addWicket = (curScore, wicket) => {
   const currentBattingTeam = getCurrentBattingTeam(curScore);
-  const { bowler } = curScore;
+  const currentBowlingTeam = getCurrentBowlingTeam(curScore);
+  const currentBowler = getCurrentBowler(curScore);
   const {
     stats: { thisOver, totalBalls, totalWickets },
   } = currentBattingTeam;
   const {
     bowling: { balls, wickets },
-  } = bowler;
-  let { updatedOver, isInningsFinished } = addRunWicketToOver(
+  } = currentBowler;
+  let { updatedOver, isInningsFinished, isMatchFinsihed } = addRunWicketToOver(
     curScore,
     totalBalls,
     thisOver,
@@ -219,10 +242,10 @@ export const addWicket = (curScore, wicket) => {
 
   const revisedWicketCount = wicket === RUN_OUT ? wickets : wickets + 1;
 
-  const newBowler = {
-    ...bowler,
+  const updatedBowler = {
+    ...currentBowler,
     bowling: {
-      ...bowler.bowling,
+      ...currentBowler.bowling,
       balls: balls + 1 || 0,
       wickets: revisedWicketCount,
     },
@@ -230,30 +253,38 @@ export const addWicket = (curScore, wicket) => {
 
   return {
     ...curScore,
+    addRunWicketToOver,
     [currentBattingTeam.objName]: {
       ...currentBattingTeam,
       isInningsFinished,
       stats: newStats,
     },
-    bowler: newBowler,
+    [currentBowlingTeam.objName]: {
+      ...currentBowlingTeam,
+      players: currentBowlingTeam.players.map((player) =>
+        player.id === currentBowler.playerId ? updatedBowler : player
+      ),
+    },
   };
 };
 
 export const addExtra = (curScore, extraType, extraRuns) => {
   const currentBattingTeam = getCurrentBattingTeam(curScore);
-  const { bowler, striker } = curScore;
+  const currentBowlingTeam = getCurrentBowlingTeam(curScore);
+  const currentBowler = getCurrentBowler(curScore);
+  const currentStriker = getCurrentStriker(curScore);
   const {
     stats: { thisOver, totalRuns, totalBalls },
   } = currentBattingTeam;
 
   const {
     bowling: { runs },
-  } = bowler;
+  } = currentBowler;
 
   const extraRunsRevised =
     extraType === 'b' || extraType === 'lb' ? extraRuns : extraRuns - 1;
   const extraBallsRevised = extraType === 'b' || extraType === 'lb' ? 1 : 0;
-  let { updatedOver, isInningsFinished } = addRunWicketToOver(
+  let { updatedOver, isInningsFinished, isMatchFinsihed } = addRunWicketToOver(
     curScore,
     totalBalls,
     thisOver,
@@ -268,76 +299,96 @@ export const addExtra = (curScore, extraType, extraRuns) => {
   };
 
   const newBatting = {
-    ...striker.batting,
-    balls: striker.batting.balls + 1,
+    ...currentStriker.batting,
+    balls: currentStriker.batting.balls + 1,
   };
 
   const newBowling = {
-    ...bowler.bowling,
+    ...currentBowler.bowling,
     runs: runs + extraRuns,
-    balls: bowler.bowling.balls + extraBallsRevised,
+    balls: currentBowler.bowling.balls + extraBallsRevised,
   };
 
   return {
     ...curScore,
+    isMatchFinsihed,
     [currentBattingTeam.objName]: {
       ...currentBattingTeam,
       isInningsFinished,
       stats: newStats,
+      players: currentBattingTeam.players.map((player) =>
+        player.playerId === currentStriker.playerId
+          ? { ...currentStriker, batting: newBatting }
+          : player
+      ),
     },
-    striker: {
-      ...striker,
-      batting: newBatting,
-    },
-    bowler: {
-      ...bowler,
-      bowling: newBowling,
+    [currentBowlingTeam.objName]: {
+      ...currentBowlingTeam,
+      players: currentBowlingTeam.players.map((player) =>
+        player.playerId === currentBowler.playerId
+          ? { ...currentBowler, bowling: newBowling }
+          : player
+      ),
     },
   };
 };
 
 export const swapStrikerUtil = (curScore) => {
-  const temp = curScore.striker;
-  _.set(curScore, 'striker', curScore.nonStriker);
-  _.set(curScore, 'nonStriker', temp);
-  return curScore;
-};
-
-//(TODO)
-export const movePlayer = (curScore, id) => {
   const currentBattingTeam = getCurrentBattingTeam(curScore);
-  const { striker, nonStriker } = curScore;
-  const isPlayerInList = isPlayerInTheList(
-    striker.playerId === id ? striker : nonStriker,
-    currentBattingTeam.players
-  );
-  let outBatsman = striker.playerId === id ? striker : nonStriker;
-  outBatsman = {
-    ...outBatsman,
-    batting: { ...outBatsman.batting, status: 'OUT' },
-  };
-  const outField = striker.playerId === id ? 'striker' : 'nonStriker';
   return {
     ...curScore,
-    [outField]: { ...PLAYER_STATE },
     [currentBattingTeam.objName]: {
       ...currentBattingTeam,
-      players: isPlayerInList
-        ? currentBattingTeam.players.map((player) =>
-            player.playerId === outBatsman.playerId ? outBatsman : player
-          )
-        : [
-            ...currentBattingTeam.players,
-            {
-              ...outBatsman,
-              batting: { ...outBatsman.batting },
-            },
-          ],
+      players: currentBattingTeam.players.map((player) => {
+        switch (player.status) {
+          case STRIKER:
+            player.status = NON_STRIKER;
+            break;
+          case NON_STRIKER:
+            player.status = STRIKER;
+            break;
+          default:
+            break;
+        }
+        return player;
+      }),
     },
   };
 };
 
-export const addStriker = (curScore, nameOrObject) => {
+export const removePlayerStatus = (curScore, type, status) => {
+  const currentTeam =
+    type === BOWLER
+      ? getCurrentBowlingTeam(curScore)
+      : getCurrentBattingTeam(curScore);
+  const currentPlayer =
+    type === BOWLER
+      ? getCurrentBowler(curScore)
+      : type === STRIKER
+      ? getCurrentStriker(curScore)
+      : getCurrentNonStriker(curScore);
+
+  return currentPlayer
+    ? {
+        ...curScore,
+        [currentTeam.objName]: {
+          ...currentTeam,
+          players: currentTeam.players.map((player) =>
+            player.playerId === currentPlayer.playerId
+              ? { ...currentPlayer, status: status }
+              : player
+          ),
+        },
+      }
+    : null;
+};
+
+export const addStrikerOrNonStrikerOrBowler = (
+  curScore,
+  nameOrObject,
+  status,
+  type
+) => {
   //  Add striker to the list of batting team players.
   //  Parameters:
   // curScore: State object
@@ -346,97 +397,42 @@ export const addStriker = (curScore, nameOrObject) => {
   //          bowler. if the paramter type is object, then the entry refers to
   //          exisiting bowler object.
   // Returns: "state" object.
-  const { striker } = curScore;
-  const p_id = striker.playerId ? striker.playerId : uuidv4();
+  const currentTeam =
+    type === 'batting'
+      ? getCurrentBattingTeam(curScore)
+      : getCurrentBowlingTeam(curScore);
+
   if (typeof nameOrObject === 'string') {
+    const newPlayer = { ...PLAYER_STATE };
     return {
       ...curScore,
-      striker: {
-        ...striker,
-        name: nameOrObject,
-        playerId: p_id,
-        order: uniqueId(),
+      [currentTeam.objName]: {
+        ...currentTeam,
+        players: [
+          ...currentTeam.players,
+          {
+            ...newPlayer,
+            name: nameOrObject,
+            playerId: uuidv4(),
+            order: uniqueId(),
+            status: status,
+          },
+        ],
       },
     };
   } else if (typeof nameOrObject === 'object') {
     return {
       ...curScore,
-      striker: nameOrObject,
-    };
-  }
-};
-
-export const addNonStriker = (curScore, nameOrObject) => {
-  //  Add nonStriker to the list of batting team players.
-  //  Parameters:
-  // curScore: State object
-  // nameOrObject: This parameter can be of two types - string or an Object.
-  //          If the the parameter type is string, then the entry refers to new
-  //          bowler. if the paramter type is object, then the entry refers to
-  //          exisiting bowler object.
-  // Returns: "state" object.
-  const { nonStriker } = curScore;
-  const p_id = nonStriker.playerId ? nonStriker.playerId : uuidv4();
-  if (typeof nameOrObject === 'string') {
-    return {
-      ...curScore,
-      nonStriker: {
-        ...nonStriker,
-        name: nameOrObject,
-        playerId: p_id,
-        order: uniqueId(),
+      [currentTeam.objName]: {
+        ...currentTeam,
+        players: currentTeam.players.map((player) =>
+          player.playerId === nameOrObject.playerId
+            ? { ...nameOrObject, status: status }
+            : player
+        ),
       },
     };
-  } else if (typeof nameOrObject === 'object') {
-    return {
-      ...curScore,
-      nonStriker: nameOrObject,
-    };
   }
-};
-
-export const addBowler = (curScore, nameOrObject) => {
-  //  Add bowler to the list of bowling team players.
-  //  Parameters:
-  // curScore: State object
-  // nameOrObject: This parameter can be of two types - string or an Object.
-  //          If the the parameter type is string, then the entry refers to new
-  //          bowler. if the paramter type is object, then the entry refers to
-  //          exisiting bowler object.
-  // Returns: "state" object.
-  if (typeof nameOrObject === 'string') {
-    return {
-      ...curScore,
-      bowler: {
-        ...PLAYER_STATE,
-        name: nameOrObject,
-        playerId: uuidv4(),
-      },
-    };
-  } else if (typeof nameOrObject === 'object') {
-    return {
-      ...curScore,
-      bowler: nameOrObject,
-    };
-  }
-};
-
-export const moveCurrentBowler = (curScore) => {
-  // Function that allows to move the currentBowler to bowlingTeam platers obj.
-  // Returns: "state" object.
-  const { bowler, team1, team2 } = curScore;
-  const bowlingTeam = team1.isBatting ? team2 : team1;
-  const players = isPlayerInTheList(bowler, bowlingTeam.players)
-    ? // If player is already in the list, update the bowler stats
-      bowlingTeam.players.map((player) =>
-        player.playerId === bowler.playerId ? bowler : player
-      )
-    : // Else, add him in the list.
-      [...bowlingTeam.players, { ...bowler }];
-  return {
-    ...curScore,
-    [bowlingTeam.objName]: { ...bowlingTeam, players: players },
-  };
 };
 
 export const isPlayerInTheList = (player, teamPlayers) => {
@@ -458,32 +454,66 @@ export const addRunsToPlayerObjectOnRunOut = (curScore, runOutruns) => {
   // Runs will be added to the current batsman ie., striker and
   // the current bowler.
   // Returns: "state" object.
-  const { striker, bowler } = curScore;
-  const { batting } = striker;
-  const { bowling } = bowler;
+  const currentStriker = getCurrentStriker(curScore);
+  const currentBowler = getCurrentBowler(curScore);
+  const { batting } = currentStriker;
+  const { bowling } = currentBowler;
 
-  // Get current batting team
-  const team = getCurrentBattingTeam(curScore);
+  // Get current batting team.
+  const currentBattingTeam = getCurrentBattingTeam(curScore);
+  // Get current bowling team.
+  const currentBowlingTeam = getCurrentBowlingTeam(curScore);
+
   return {
     ...curScore,
     // Add runs to team's total Runs.
-    [team.objName]: {
-      ...team,
-      stats: { ...team.stats, totalRuns: team.stats.totalRuns + runOutruns },
-    },
-    // Add runs to striker.
-    striker: {
-      ...striker,
-      batting: {
-        ...batting,
-        runs: batting.runs + runOutruns,
-        balls: batting.balls + 1,
+    [currentBattingTeam.objName]: {
+      ...currentBattingTeam,
+      stats: {
+        ...currentBattingTeam.stats,
+        totalRuns: currentBattingTeam.stats.totalRuns + runOutruns,
       },
+      players: currentBattingTeam.players.map((player) =>
+        player.playerId === currentStriker.playerId
+          ? {
+              ...currentStriker,
+              batting: {
+                ...batting,
+                runs: batting.runs + runOutruns,
+                balls: batting.balls + 1,
+              },
+            }
+          : player
+      ),
     },
-    // Add runs to bowler.
-    bowler: {
-      ...bowler,
-      bowling: { ...bowling, runs: bowling.runs + runOutruns },
+    [currentBowlingTeam.objName]: {
+      ...currentBowlingTeam,
+      players: currentBowlingTeam.players.map((player) =>
+        player.playerId === currentBowler.playerId
+          ? {
+              ...currentBowler,
+              bowling: { ...bowling, runs: bowling.runs + runOutruns },
+            }
+          : player
+      ),
     },
   };
+};
+
+export const getCurrentStriker = (curScore) => {
+  const currentBattingTeam = getCurrentBattingTeam(curScore);
+  const { players } = currentBattingTeam;
+  return players.filter((player) => player.status === STRIKER)[0];
+};
+
+export const getCurrentNonStriker = (curScore) => {
+  const currentBattingTeam = getCurrentBattingTeam(curScore);
+  const { players } = currentBattingTeam;
+  return players.filter((player) => player.status === NON_STRIKER)[0];
+};
+
+export const getCurrentBowler = (curScore) => {
+  const currentBowlingTeam = getCurrentBowlingTeam(curScore);
+  const { players } = currentBowlingTeam;
+  return players.filter((player) => player.status === BOWLER)[0];
 };

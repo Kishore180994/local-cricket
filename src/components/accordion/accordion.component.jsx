@@ -15,19 +15,14 @@ class Accordion extends React.Component {
 
   topTwoPlayers = () => {
     const {
-      striker,
-      nonStriker,
       innings: { players },
     } = this.props;
     this.setState({
-      topTwoPlayers: trimObjectToTwo([...players, striker, nonStriker]),
+      topTwoPlayers: trimObjectToTwo([...players]),
     });
   };
   render() {
     const {
-      bowler,
-      striker,
-      nonStriker,
       innings: {
         name,
         toss,
@@ -79,10 +74,9 @@ class Accordion extends React.Component {
               <div className='bowling'>
                 <label className='team-name'>Bowling</label>
                 <div className='item'>
-                  <div className='player'>{bowler.name}</div>
+                  <div className='player'>Bowler</div>
                   <div className='score'>
-                    {bowler.bowling.runs}/{bowler.bowling.wickets} (
-                    {convertBallsToOvers(bowler.bowling.balls)} ov)
+                    45/1 ({convertBallsToOvers(45)} ov)
                   </div>
                 </div>
               </div>
@@ -98,7 +92,7 @@ class Accordion extends React.Component {
               </div>
               <div className='score'>
                 <div className='ui middle aligned divided list'>
-                  {[...players, striker, nonStriker]
+                  {[...players]
                     .sort((a, b) => a.order - b.order)
                     .map((player) => {
                       const {

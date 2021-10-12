@@ -21,10 +21,13 @@ import {
   BOWLER_MODAL,
   MOVE_BOWLER,
   ADD_RUNS_TO_PLAYER,
-  END_OF_THE_INNIGS_MODAL,
+  END_OF_THE_INNINGS_MODAL,
+  END_OF_THE_MATCH_MODAL,
   SWITCH_INNINGS,
   CLEAR_UNDO_HISTORY,
   OVERS_DONE,
+  REMOVE_BOWLER_STATUS,
+  REMOVE_BATSMAN_STATUS,
 } from './types';
 
 export const signIn = (userId) => {
@@ -158,6 +161,21 @@ export const addNonStriker = (name) => async (dispatch) => {
   });
 };
 
+export const removeBatsmanStatus =
+  (batsmanType, wicketType) => async (dispatch) => {
+    dispatch({
+      type: REMOVE_BATSMAN_STATUS,
+      batsmanType: batsmanType, // can be either striker or non-striker
+      wicketType: wicketType,
+    });
+  };
+
+export const removeBowlerStatus = () => async (dispatch) => {
+  dispatch({
+    type: REMOVE_BOWLER_STATUS,
+  });
+};
+
 export const movePlayer = (name) => async (dispatch) => {
   dispatch({
     type: MOVE_PLAYER,
@@ -192,9 +210,16 @@ export const setBowlerModal = (value) => async (dispatch) => {
   });
 };
 
-export const setEndOfInnigsModal = (val) => async (dispatch) => {
+export const setEndOfInningsModal = (val) => async (dispatch) => {
   dispatch({
-    type: END_OF_THE_INNIGS_MODAL,
+    type: END_OF_THE_INNINGS_MODAL,
+    payload: val,
+  });
+};
+
+export const setEndOfMatchModal = (val) => async (dispatch) => {
+  dispatch({
+    type: END_OF_THE_MATCH_MODAL,
     payload: val,
   });
 };

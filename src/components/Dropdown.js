@@ -43,7 +43,10 @@ const Dropdown = ({
           if (val === 'b' || val === 'lb')
             addExtraAndSwapStriker(val, parseInt(option.value));
           else addExtraAndSwapStriker(val, parseInt(option.value) + 1);
-          const overEnd = (totalBallsPlayed + 1) % 6;
+          const overEnd =
+            val === 'b' || val === 'lb'
+              ? (totalBallsPlayed + 1) % 6
+              : totalBallsPlayed % 6;
           if (!overEnd) setBowlerModal(false);
         }}>
         {option.value}

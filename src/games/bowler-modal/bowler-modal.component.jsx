@@ -5,9 +5,9 @@ import RenderInput from '../render-input/render-input.component';
 
 import {
   addBowler,
-  moveBowler,
+  removeBowlerStatus,
   setBowlerModal,
-  setEndOfInnigsModal,
+  setEndOfInningsModal,
 } from '../../actions';
 import { BowlerHeader } from './bowler-modal.styles';
 import { createStructuredSelector } from 'reselect';
@@ -25,8 +25,8 @@ class BowlerModal extends React.Component {
 
   handleSubmit = () => {
     //Move the current bowler to the secondInnings
-    const { moveBowler, addBowler } = this.props;
-    moveBowler();
+    const { addBowler, removeBowlerStatus } = this.props;
+    removeBowlerStatus();
     if (this.state.bowlerObject) addBowler(this.state.bowlerObject);
     else if (this.state.bowler) addBowler(this.state.bowler);
     else console.log('Check bowler model component');
@@ -82,7 +82,7 @@ class BowlerModal extends React.Component {
 
   handleEndOfInningsModal = () => {
     this.props.setBowlerModal(true);
-    this.props.setEndOfInnigsModal(false);
+    this.props.setEndOfInningsModal(false);
   };
 
   onDismiss = () => {
@@ -145,7 +145,7 @@ const mapStateToProps = createStructuredSelector({
 
 export default connect(mapStateToProps, {
   setBowlerModal,
-  moveBowler,
   addBowler,
-  setEndOfInnigsModal,
+  removeBowlerStatus,
+  setEndOfInningsModal,
 })(BowlerModal);

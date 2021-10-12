@@ -1,16 +1,16 @@
 import { Route, Router, Switch } from 'react-router-dom';
-import Header from './Header';
 import history from '../history';
 import GameCreate from '../games/GameCreate';
-import GameView from '../games/GameView';
 import GamePlay from '../games/game-play/game-play.component';
 import FullScoreCard from '../games/full-score-card/full-score-card.component';
 import { createStructuredSelector } from 'reselect';
 import { selectMatchId } from '../reducers/currentScore/currentScore.selectors';
 import { connect } from 'react-redux';
-import HomePage from './HomePage/HomePage.component';
+import HomePage from './home-page/home-page.component';
 import styled from 'styled-components';
-import PageNotFound from './PageNotFound/page-not-found.component';
+import PageNotFound from './page-not-found/page-not-found.component';
+import Header from './header/header.component';
+import GameView from '../games/game-view/game-view.component';
 
 const MainContainer = styled.div`
   overflow: hidden;

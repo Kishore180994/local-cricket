@@ -19,6 +19,11 @@ export const selectIsFirstInningsFinished = createSelector(
   (firstInnings) => firstInnings.isInningsFinished
 );
 
+export const selectTarget = createSelector(
+  [selectFirstInnings],
+  (firstInnings) => firstInnings.stats.totalRuns + 1
+);
+
 export const selectIsSecondInningsFinished = createSelector(
   [selectSecondInnings],
   (secondInnings) => secondInnings.isInningsFinished
@@ -28,4 +33,14 @@ export const selectIsFirstInnings = createSelector(
   [selectFirstInnings, selectSecondInnings],
   (first, second) =>
     !first.isInningsFinished && !second.isInningsFinished ? true : false
+);
+
+export const selectWhoWonToss = createSelector(
+  [selectFirstInnings, selectSecondInnings],
+  (first, second) => (first.toss ? first : second)
+);
+
+export const selectTossChoose = createSelector(
+  [selectFirstInnings, selectSecondInnings],
+  (first, second) => (first.choose ? first.choose : second.choose)
 );

@@ -8,36 +8,35 @@ import {
   ADD_NON_STRIKER,
   ADD_BOWLER,
   CREATE_GAME,
-  MOVE_PLAYER,
-  MOVE_BOWLER,
   SWAP_STRIKER,
   SWAP_STRIKER_FORCE,
   ADD_RUNS_TO_PLAYER,
   SWITCH_INNINGS,
   CLEAR_UNDO_HISTORY,
+  NON_STRIKER,
+  STRIKER,
+  BOWLER,
+  REMOVE_BOWLER_STATUS,
+  NON_BOWLER,
+  REMOVE_BATSMAN_STATUS,
 } from '../../actions/types';
-import { PLAYER_STATE, TEAM_STATE } from '../../states';
+import { TEAM_STATE } from '../../states';
 import {
   addRunUtil,
   swapStrikerUtil,
   addWicket,
   addExtra,
-  movePlayer,
-  addStriker,
-  addNonStriker,
   matchInit,
   getCurrentBattingTeam,
-  addBowler,
-  moveCurrentBowler,
   addRunsToPlayerObjectOnRunOut,
   switchInnings,
+  addStrikerOrNonStrikerOrBowler,
+  removePlayerStatus,
 } from './currentScore.utils';
 
 const INITIAL_STATE = {
   matchId: 0,
-  striker: JSON.parse(JSON.stringify({ ...PLAYER_STATE })),
-  nonStriker: JSON.parse(JSON.stringify({ ...PLAYER_STATE })),
-  bowler: JSON.parse(JSON.stringify({ ...PLAYER_STATE })),
+  isMatchFinished: false,
   team1: JSON.parse(JSON.stringify(TEAM_STATE)),
   team2: JSON.parse(JSON.stringify(TEAM_STATE)),
   settings: {
@@ -79,19 +78,40 @@ const currentScoreReducer = (state = INITIAL_STATE, action) => {
       return addWicket(newState, action.payload);
 
     case ADD_STRIKER:
-      return addStriker(newState, action.payload);
+      return addStrikerOrNonStrikerOrBowler(
+        newState,
+        action.payload,
+        STRIKER,
+        'batting'
+      );
 
     case ADD_NON_STRIKER:
-      return addNonStriker(newState, action.payload);
-
-    case MOVE_PLAYER:
-      return movePlayer(newState, action.payload);
+      return addStrikerOrNonStrikerOrBowler(
+        newState,
+        action.payload,
+        NON_STRIKER,
+        'batting'
+      );
 
     case ADD_BOWLER:
-      return addBowler(newState, action.payload);
+      return addStrikerOrNonStrikerOrBowler(
+        newState,
+        action.payload,
+        BOWLER,
+        'bowling'
+      );
 
-    case MOVE_BOWLER:
-      return moveCurrentBowler(newState);
+    case REMOVE_BOWLER_STATUS:
+      return removePlayerStatus(newState, BOWLER, NON_BOWLER);
+
+    case REMOVE_BATSMAN_STATUS:
+      // action.batsmanType => STRIKER or NON_STRIKER
+      // action.wicketType => CAUGHT_OUT || BOWLED ETC.
+      return removePlayerStatus(
+        newState,
+        action.batsmanType,
+        action.wicketType
+      );
 
     case ADD_RUNS_TO_PLAYER:
       return addRunsToPlayerObjectOnRunOut(newState, action.payload);

@@ -4,13 +4,11 @@ import { createStructuredSelector } from 'reselect';
 import Accordion from '../../components/accordion/accordion.component';
 import {
   selectBowler,
-  selectBattingTeam,
   selectNonStriker,
   selectStriker,
 } from '../../reducers/currentScore/currentScore.selectors';
 import {
   selectFirstInnings,
-  selectIsFirstInnings,
   selectIsFirstInningsFinished,
   selectSecondInnings,
 } from '../../reducers/currentScore/currentScore.staticSelectors';
@@ -26,18 +24,8 @@ const FullScoreCard = ({
 }) => {
   return (
     <ScoreCardContainer>
-      <Accordion
-        innings={firstInnings}
-        striker={striker}
-        nonStriker={nonStriker}
-        bowler={bowler}
-      />
-      {/* <Accordion
-        innings={secondInnings}
-        striker={striker}
-        nonStriker={nonStriker}
-        bowler={bowler}
-      /> */}
+      <Accordion innings={firstInnings} />
+      <Accordion innings={secondInnings} />
     </ScoreCardContainer>
   );
 };

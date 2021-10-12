@@ -1,15 +1,16 @@
 import { createSelector } from 'reselect';
+import { BOWLER, NON_STRIKER, STRIKER } from '../../actions/types';
 
-const selectCurrentScore = (state) => state.curScore;
+const selectCurrentScore = (state) => state.curScore.present;
 
 export const selectTeam1 = createSelector(
   [selectCurrentScore],
-  (curScore) => curScore.present.team1
+  (curScore) => curScore.team1
 );
 
 export const selectTeam2 = createSelector(
   [selectCurrentScore],
-  (curScore) => curScore.present.team2
+  (curScore) => curScore.team2
 );
 
 export const selectBattingTeam = createSelector(
@@ -17,6 +18,11 @@ export const selectBattingTeam = createSelector(
   (team1, team2) => {
     return team1.isBatting ? team1 : team2;
   }
+);
+
+export const selectBattingTeamPlayers = createSelector(
+  [selectBattingTeam],
+  (team) => team.players
 );
 
 export const SelectIsCurrentInningsCompleted = createSelector(
@@ -31,24 +37,34 @@ export const selectBowlingTeam = createSelector(
   }
 );
 
+export const selectBowlingTeamPlayers = createSelector(
+  [selectBowlingTeam],
+  (team) => team.players
+);
+
 export const selectStriker = createSelector(
-  [selectCurrentScore],
-  (curScore) => curScore.present.striker
+  [selectBattingTeamPlayers],
+  (players) => players.filter((player) => player.status === STRIKER)[0]
+);
+
+export const selectNonStriker = createSelector(
+  [selectBattingTeamPlayers],
+  (players) => players.filter((player) => player.status === NON_STRIKER)[0]
+);
+
+export const selectBowler = createSelector(
+  [selectBowlingTeamPlayers],
+  (players) => players.filter((player) => player.status === BOWLER)[0]
 );
 
 export const selectMatchId = createSelector(
   [selectCurrentScore],
-  (curScore) => curScore.present.matchId
+  (curScore) => curScore.matchId
 );
 
-export const selectNonStriker = createSelector(
+export const selectIsMatchFinished = createSelector(
   [selectCurrentScore],
-  (curScore) => curScore.present.nonStriker
-);
-
-export const selectBowler = createSelector(
-  [selectCurrentScore],
-  (curScore) => curScore.present.bowler
+  (curScore) => curScore.isMatchFinished
 );
 
 export const selectStats = createSelector(
@@ -83,12 +99,7 @@ export const selectCurrentRunRate = createSelector(
 
 export const selectSettings = createSelector(
   [selectCurrentScore],
-  (curScore) => curScore.present.settings
-);
-
-export const selectTarget = createSelector(
-  [selectSettings],
-  (settings) => settings.target + 1
+  (curScore) => curScore.settings
 );
 
 export const selectIsWidesEnabled = createSelector(

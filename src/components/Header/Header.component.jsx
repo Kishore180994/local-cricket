@@ -1,16 +1,17 @@
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { createStructuredSelector } from 'reselect';
-import styled from 'styled-components';
-import { selectMatchId } from '../reducers/currentScore/currentScore.selectors';
-import GoogleAuth from './GoogleAuth';
+import { selectMatchId } from '../../reducers/currentScore/currentScore.selectors';
+import GoogleAuth from '../GoogleAuth';
+import { Logo } from './header.styles';
 
 const Header = ({ matchId }) => {
   return (
     <div className='ui secondary pointing menu'>
-      <Link to='/' className='item'>
-        Cricket
-      </Link>
+      <Logo to='/' className='item'>
+        <span className='big'>CricScore</span>
+        <sub className='small'>App.com</sub>
+      </Logo>
       <div className='right menu'>
         <Link to={`/games/scorecard/${matchId}`} className='item'>
           Full Score Card
