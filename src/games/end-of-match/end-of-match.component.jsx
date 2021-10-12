@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
-import { clearUndoHistory } from '../../actions';
+import { clearUndoHistory, setEndOfMatchModal } from '../../actions';
 import Modal from '../../Modal';
 import { selectMatchId } from '../../reducers/currentScore/currentScore.selectors';
 import { convertBallsToOvers, convertOversToBalls } from '../../util';
@@ -13,6 +13,7 @@ import {
   selectWhoWonToss,
 } from '../../reducers/currentScore/currentScore.staticSelectors.js';
 import { getTopBatsman, getTopBowler, whoWonGame } from './end-of-match.utils';
+import { Link } from 'react-router-dom';
 
 class EndOfMatch extends React.Component {
   handleSubmit = (e) => {
@@ -82,9 +83,6 @@ class EndOfMatch extends React.Component {
     );
   };
   renderActions = () => {
-    const cancelClassName = `ui negative button ${
-      this.props.isFirstInningsFinished ? 'disabled' : ''
-    }`;
     return (
       <div>
         <button
@@ -92,14 +90,11 @@ class EndOfMatch extends React.Component {
           onClick={(e) => this.handleSubmit(e)}>
           Start New Match
         </button>
-        <button
-          className={cancelClassName}
-          onClick={(e) => {
-            e.preventDefault();
-            this.props.setEOIHidden(true);
-          }}>
-          Cancel
-        </button>
+        <Link
+          to={`/games/scorecard/${this.props.matchId}`}
+          className='ui blue button'>
+          View Score-Card
+        </Link>
       </div>
     );
   };

@@ -3,7 +3,8 @@ import {
   WICKET_MODAL,
   OUT_BATSMAN,
   BOWLER_MODAL,
-  END_OF_THE_INNIGS_MODAL,
+  END_OF_THE_INNINGS_MODAL,
+  END_OF_THE_MATCH_MODAL,
   SWITCH_INNINGS,
 } from '../../actions/types';
 
@@ -31,10 +32,15 @@ const modalReducer = (state = INITIAL_STATE, action) => {
         ...state,
         wicket: { hidden: action.payload.value, type: action.payload.type },
       };
-    case END_OF_THE_INNIGS_MODAL:
+    case END_OF_THE_INNINGS_MODAL:
       return {
         ...state,
         eoiModal: { hidden: action.payload },
+      };
+    case END_OF_THE_MATCH_MODAL:
+      return {
+        ...state,
+        eomModal: { hidden: action.payload },
       };
     case BOWLER_MODAL:
       return {
@@ -52,6 +58,7 @@ const modalReducer = (state = INITIAL_STATE, action) => {
         ...state,
         wicket: { hidden: true, type: '' },
         bowlerModal: { hidden: true },
+        eomModal: { hidden: true },
         currentBatsmanWhoGotOut: null,
       };
 

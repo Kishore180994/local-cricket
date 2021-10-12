@@ -21,7 +21,8 @@ import {
   BOWLER_MODAL,
   MOVE_BOWLER,
   ADD_RUNS_TO_PLAYER,
-  END_OF_THE_INNIGS_MODAL,
+  END_OF_THE_INNINGS_MODAL,
+  END_OF_THE_MATCH_MODAL,
   SWITCH_INNINGS,
   CLEAR_UNDO_HISTORY,
   OVERS_DONE,
@@ -209,9 +210,16 @@ export const setBowlerModal = (value) => async (dispatch) => {
   });
 };
 
-export const setEndOfInnigsModal = (val) => async (dispatch) => {
+export const setEndOfInningsModal = (val) => async (dispatch) => {
   dispatch({
-    type: END_OF_THE_INNIGS_MODAL,
+    type: END_OF_THE_INNINGS_MODAL,
+    payload: val,
+  });
+};
+
+export const setEndOfMatchModal = (val) => async (dispatch) => {
+  dispatch({
+    type: END_OF_THE_MATCH_MODAL,
     payload: val,
   });
 };

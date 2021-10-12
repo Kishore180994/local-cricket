@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import {
   clearUndoHistory,
-  setEndOfInnigsModal,
+  setEndOfInningsModal,
   switchInnings,
 } from '../../actions';
 import Modal from '../../Modal';
@@ -104,7 +104,7 @@ const mapStateToProps = createStructuredSelector({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  setEOIHidden: (val) => dispatch(setEndOfInnigsModal(val)),
+  setEOIHidden: (val) => dispatch(setEndOfInningsModal(val)),
   switchInnings: () => dispatch(switchInnings()),
   clearUndoHistory: () => dispatch(clearUndoHistory()),
 });

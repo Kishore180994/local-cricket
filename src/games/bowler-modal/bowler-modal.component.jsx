@@ -7,7 +7,7 @@ import {
   addBowler,
   removeBowlerStatus,
   setBowlerModal,
-  setEndOfInnigsModal,
+  setEndOfInningsModal,
 } from '../../actions';
 import { BowlerHeader } from './bowler-modal.styles';
 import { createStructuredSelector } from 'reselect';
@@ -82,7 +82,7 @@ class BowlerModal extends React.Component {
 
   handleEndOfInningsModal = () => {
     this.props.setBowlerModal(true);
-    this.props.setEndOfInnigsModal(false);
+    this.props.setEndOfInningsModal(false);
   };
 
   onDismiss = () => {
@@ -147,5 +147,5 @@ export default connect(mapStateToProps, {
   setBowlerModal,
   addBowler,
   removeBowlerStatus,
-  setEndOfInnigsModal,
+  setEndOfInningsModal,
 })(BowlerModal);
