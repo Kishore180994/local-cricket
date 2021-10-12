@@ -9,7 +9,6 @@ import {
   selectNonStriker,
   selectOvers,
   selectStriker,
-  selectTarget,
   selectTotalBallsPlayed,
 } from '../../reducers/currentScore/currentScore.selectors';
 import {
@@ -21,9 +20,16 @@ import {
   FooterColumn,
   FooterRow,
 } from './play-score-card.styles';
-import { convertOversToBalls, getProjectedScore } from '../../util';
+import {
+  convertOversToBalls,
+  getProjectedScore,
+  getRequiredRunRate,
+} from '../../util';
 import { renderOvers } from '../game-play/game-play.utils';
-import { selectIsFirstInnings } from '../../reducers/currentScore/currentScore.staticSelectors';
+import {
+  selectIsFirstInnings,
+  selectTarget,
+} from '../../reducers/currentScore/currentScore.staticSelectors';
 
 class PlayScoreCard extends React.Component {
   render() {
@@ -113,19 +119,31 @@ class PlayScoreCard extends React.Component {
                   <FooterColumn>
                     {/* Projected score = currentRunRate*TotalOvers */}
                     <div>
+                      {!isFirstInnings ? (
+                        <React.Fragment>
+                          <label>
+                            <i className='info circle icon'></i>Target
+                          </label>{' '}
+                          {this.props.target}
+                        </React.Fragment>
+                      ) : (
+                        <React.Fragment></React.Fragment>
+                      )}
+                    </div>
+                    <div>
                       {isFirstInnings ? (
                         <React.Fragment>
                           <label>
                             <i className='info circle icon'></i>Projected Score
-                          </label>
+                          </label>{' '}
                           {getProjectedScore(currentRunRate, overs)}
                         </React.Fragment>
                       ) : (
                         <React.Fragment>
                           <label>
                             <i className='info circle icon'></i>Required runs
-                          </label>
-                          {this.props.target}
+                          </label>{' '}
+                          {this.props.target - battingTeamScore}
                         </React.Fragment>
                       )}
                     </div>
@@ -143,12 +161,20 @@ class PlayScoreCard extends React.Component {
                       </label>{' '}
                       {currentRunRate}
                     </div>
-                    <div>
-                      <label>
-                        <i className='info circle icon'></i>Required Runrate
-                      </label>{' '}
-                      {currentRunRate}
-                    </div>
+                    {!isFirstInnings ? (
+                      <div>
+                        <label>
+                          <i className='info circle icon'></i>Required Runrate
+                        </label>{' '}
+                        {getRequiredRunRate(
+                          this.props.target - battingTeamScore,
+                          convertOversToBalls(this.props.overs) -
+                            totalBallsPlayed
+                        )}
+                      </div>
+                    ) : (
+                      <div></div>
+                    )}
                   </FooterColumn>
                 </FooterRow>
               </FooterGrid>

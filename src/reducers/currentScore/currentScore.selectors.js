@@ -62,6 +62,11 @@ export const selectMatchId = createSelector(
   (curScore) => curScore.matchId
 );
 
+export const selectIsMatchFinished = createSelector(
+  [selectCurrentScore],
+  (curScore) => curScore.isMatchFinished
+);
+
 export const selectStats = createSelector(
   [selectBattingTeam],
   (firstInnings) => firstInnings.stats
@@ -95,11 +100,6 @@ export const selectCurrentRunRate = createSelector(
 export const selectSettings = createSelector(
   [selectCurrentScore],
   (curScore) => curScore.settings
-);
-
-export const selectTarget = createSelector(
-  [selectSettings],
-  (settings) => settings.target + 1
 );
 
 export const selectIsWidesEnabled = createSelector(

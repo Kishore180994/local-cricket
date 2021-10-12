@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createStructuredSelector } from 'reselect';
 import { selectMatchId } from '../../reducers/currentScore/currentScore.selectors';
 import GoogleAuth from '../GoogleAuth';
-import { Logo } from './Header.styles';
+import { Logo } from './header.styles';
 
 const Header = ({ matchId }) => {
   return (

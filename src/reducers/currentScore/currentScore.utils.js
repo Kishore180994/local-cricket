@@ -61,19 +61,26 @@ export const matchInit = (curScore, formValues) => {
 };
 
 export const switchInnings = (curScore) => {
-  const { settings } = curScore;
-  // Add striker and non striker to players of batting team.
-  const battingTeam = getCurrentBattingTeam(curScore);
-  // Added striker, nonstriker and bowler to the respective objects.
-  const newState = {
-    ...curScore,
-    settings: { ...settings, target: battingTeam.stats.totalRuns + 1 },
-  };
   // Switch the team1 and team2
-  _.set(newState, 'team1.isBatting', false);
-  _.set(newState, 'team2.isBatting', true);
-
-  return newState;
+  const currentBattingTeam = getCurrentBattingTeam(curScore);
+  const currentBowlingTeam = getCurrentBowlingTeam(curScore);
+  // _.set(curScore, 'team1.isBatting', false);
+  // _.set(curScore, 'team2.isBatting', true);
+  return {
+    ...curScore,
+    settings: {
+      ...curScore.settings,
+      target: currentBattingTeam.stats.totalRuns + 1,
+    },
+    [currentBattingTeam.objName]: {
+      ...currentBattingTeam,
+      isBatting: false,
+    },
+    [currentBowlingTeam.objName]: {
+      ...currentBowlingTeam,
+      isBatting: true,
+    },
+  };
 };
 
 export const getCurrentBattingTeam = (curScore) => {
@@ -93,12 +100,16 @@ export const getCurrentOver = (overs) => {
 
 const addRunWicketToOver = (curScore, balls, thisOver, run) => {
   let isInningsFinished = false;
+  let isMatchFinsihed = false;
   const totalOvers = curScore.settings.overs;
   //Check for target runs acheived by opponent team.
   const currentBattingTeam = getCurrentBattingTeam(curScore);
   const { totalRuns } = currentBattingTeam.stats;
   const { target } = curScore.settings;
-  if (totalRuns >= target) isInningsFinished = true;
+  if (totalRuns + run >= target) {
+    isInningsFinished = true;
+    isMatchFinsihed = true;
+  }
 
   if (balls % 6 === 0) {
     //End the current over i.e, end the current array.
@@ -106,7 +117,11 @@ const addRunWicketToOver = (curScore, balls, thisOver, run) => {
     const newOver = [run];
 
     // Check: If the total overs are completed.
-    return { updatedOver: [...thisOver, newOver], isInningsFinished };
+    return {
+      updatedOver: [...thisOver, newOver],
+      isInningsFinished,
+      isMatchFinsihed,
+    };
   } else {
     let updatedOver = thisOver.map((over, index) => {
       if (thisOver.length === index + 1) {
@@ -117,7 +132,7 @@ const addRunWicketToOver = (curScore, balls, thisOver, run) => {
     if (balls + 1 >= convertOversToBalls(totalOvers)) {
       isInningsFinished = true;
     }
-    return { updatedOver, isInningsFinished };
+    return { updatedOver, isInningsFinished, isMatchFinsihed };
   }
 };
 
@@ -148,7 +163,7 @@ export const addRunUtil = (curScore, run) => {
   const bowlerRuns = bowling.runs + run;
   const bowlerBalls = bowling.balls + 1;
   const totalBallsBowledInThisInnigs = totalBalls + 1;
-  let { updatedOver, isInningsFinished } = addRunWicketToOver(
+  let { updatedOver, isInningsFinished, isMatchFinsihed } = addRunWicketToOver(
     curScore,
     totalBalls,
     thisOver,
@@ -183,6 +198,7 @@ export const addRunUtil = (curScore, run) => {
   };
   return {
     ...curScore,
+    isMatchFinsihed,
     [currentBattingTeam.objName]: {
       ...currentBattingTeam,
       isInningsFinished,
@@ -210,7 +226,7 @@ export const addWicket = (curScore, wicket) => {
   const {
     bowling: { balls, wickets },
   } = currentBowler;
-  let { updatedOver, isInningsFinished } = addRunWicketToOver(
+  let { updatedOver, isInningsFinished, isMatchFinsihed } = addRunWicketToOver(
     curScore,
     totalBalls,
     thisOver,
@@ -237,6 +253,7 @@ export const addWicket = (curScore, wicket) => {
 
   return {
     ...curScore,
+    addRunWicketToOver,
     [currentBattingTeam.objName]: {
       ...currentBattingTeam,
       isInningsFinished,
@@ -267,7 +284,7 @@ export const addExtra = (curScore, extraType, extraRuns) => {
   const extraRunsRevised =
     extraType === 'b' || extraType === 'lb' ? extraRuns : extraRuns - 1;
   const extraBallsRevised = extraType === 'b' || extraType === 'lb' ? 1 : 0;
-  let { updatedOver, isInningsFinished } = addRunWicketToOver(
+  let { updatedOver, isInningsFinished, isMatchFinsihed } = addRunWicketToOver(
     curScore,
     totalBalls,
     thisOver,
@@ -294,6 +311,7 @@ export const addExtra = (curScore, extraType, extraRuns) => {
 
   return {
     ...curScore,
+    isMatchFinsihed,
     [currentBattingTeam.objName]: {
       ...currentBattingTeam,
       isInningsFinished,

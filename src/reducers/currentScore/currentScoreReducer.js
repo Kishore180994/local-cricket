@@ -36,6 +36,7 @@ import {
 
 const INITIAL_STATE = {
   matchId: 0,
+  isMatchFinished: false,
   team1: JSON.parse(JSON.stringify(TEAM_STATE)),
   team2: JSON.parse(JSON.stringify(TEAM_STATE)),
   settings: {

@@ -26,6 +26,7 @@ import {
   selectIsByesEnabled,
   SelectIsCurrentInningsCompleted,
   selectIsLegByesEnabled,
+  selectIsMatchFinished,
   selectIsNoBallEnabled,
   selectIsWidesEnabled,
   selectThisInnings,
@@ -54,6 +55,7 @@ import {
   selectIsFirstInningsFinished,
   selectIsSecondInningsFinished,
 } from '../../reducers/currentScore/currentScore.staticSelectors';
+import EndOfMatch from '../end-of-match/end-of-match.component';
 
 class GamePlay extends Component {
   constructor() {
@@ -198,11 +200,15 @@ class GamePlay extends Component {
       isBowlerModalHidden,
       isEoiModalHidden,
       isCurrentInningsCompleted,
+      isMatchFinished,
+      isSecondInningsCompleted,
     } = this.props;
     return (
       <React.Fragment>
         {isWicketModalHidden ? null : <WicketModal />}
-        {isCurrentInningsCompleted ? (
+        {isMatchFinished || isSecondInningsCompleted ? (
+          <EndOfMatch />
+        ) : isCurrentInningsCompleted ? (
           <EndOfInnings />
         ) : isBowlerModalHidden ? null : (
           <BowlerModal />
@@ -232,6 +238,7 @@ const mapStateToProps = createStructuredSelector({
   isFirstInningsCompleted: selectIsFirstInningsFinished,
   isCurrentInningsCompleted: SelectIsCurrentInningsCompleted,
   isSecondInningsCompleted: selectIsSecondInningsFinished,
+  isMatchFinished: selectIsMatchFinished,
   isWidesEnabled: selectIsWidesEnabled,
   isNoBallEnabled: selectIsNoBallEnabled,
   isByesEnabled: selectIsByesEnabled,

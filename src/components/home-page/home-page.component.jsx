@@ -1,4 +1,4 @@
-import './HomePage.styles.scss';
+import './home-page.styles.scss';
 import { Link } from 'react-router-dom';
 
 const HomePage = () => {

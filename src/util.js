@@ -17,6 +17,13 @@ export const getCurRunRate = (runs, balls) => {
   return parseFloat(runs / adjustedOvers).toFixed(2);
 };
 
+export const getRequiredRunRate = (remainingTarget, remainingBalls) => {
+  const over = Math.trunc(remainingBalls / 6);
+  const ballFractionOfOver = (remainingBalls % 6) / 6;
+  const adjustedOvers = over + ballFractionOfOver;
+  return parseFloat(remainingTarget / adjustedOvers).toFixed(2);
+};
+
 export const getProjectedScore = (runRate, totalOvers) => {
   return parseInt(runRate * totalOvers);
 };

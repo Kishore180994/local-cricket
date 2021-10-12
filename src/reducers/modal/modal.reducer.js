@@ -18,6 +18,9 @@ const INITIAL_STATE = {
   eoiModal: {
     hidden: true,
   },
+  eomModal: {
+    hidden: true,
+  },
   currentBatsmanWhoGotOut: null,
 };
 
