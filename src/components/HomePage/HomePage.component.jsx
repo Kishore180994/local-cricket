@@ -18,7 +18,7 @@ const HomePage = () => {
       </div>
       <div className='buttonCenter'>
         <Link to='/' className='button disabled-link'>
-          <i class='lock icon'></i>
+          <i className='lock icon'></i>
           View Match
           <span className='small' style={{ fontSize: '0.7em' }}>
             {' '}

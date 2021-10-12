@@ -139,6 +139,7 @@ class GameView extends React.Component {
   render() {
     return (
       <Modal
+        onDismiss={() => {}}
         header='Add player details'
         content={this.renderContent()}
         actions={this.renderActions()}

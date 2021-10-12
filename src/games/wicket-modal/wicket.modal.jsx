@@ -2,7 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Modal from '../../Modal';
 import {
-  movePlayer,
   addStriker,
   addNonStriker,
   addWicket,
@@ -10,11 +9,13 @@ import {
   swapStriker,
   swapStrikerForce,
   setBatsmanOut,
+  removeBatsmanStatus,
   addRunToPlayer,
 } from '../../actions';
 import { createStructuredSelector } from 'reselect';
 
 import {
+  selectBastmanWhoGotOut,
   selectWicketModalHiddenValue,
   selectWicketType,
 } from '../../reducers/modal/modal.selectors';
@@ -22,6 +23,7 @@ import {
   selectBattingTeam,
   selectBattingTeamScore,
   selectBattingTeamWickets,
+  selectBowler,
   selectNonStriker,
   selectStriker,
 } from '../../reducers/currentScore/currentScore.selectors';
@@ -42,6 +44,8 @@ import {
   CAUGHT_OUT,
   RUN_OUT,
   RETIRED_HURT,
+  STRIKER,
+  NON_STRIKER,
 } from '../../actions/types';
 import { getStrikeRate } from '../../util';
 import RenderInput from '../render-input/render-input.component';
@@ -50,7 +54,6 @@ class WicketModal extends React.Component {
   state = {
     chooseNextBatsman: null,
     chooseNextBatsmanSide: '',
-    currentBatsmanWhoGotOut: null,
     runOutCheckedValue: '',
     runsScoredOnRunOut: 0,
   };
@@ -65,36 +68,34 @@ class WicketModal extends React.Component {
     const {
       striker,
       nonStriker,
-      movePlayer,
       addStriker,
       addNonStriker,
       addWicket,
       swapStriker,
       wicketType,
       setWicketModal,
+      setBatsmanOut,
       outNonStrikerActionOrder,
       outStrikerActionOrder,
       addRunsToStrikerBeforeRunout,
+      removeBatsmanStatus,
     } = this.props;
     const { chooseNextBatsman, chooseNextBatsmanSide, runOutCheckedValue } =
       this.state;
     if (chooseNextBatsman) {
       switch (wicketType) {
         case CAUGHT_OUT:
-          this.setState({ currentBatsmanWhoGotOut: striker });
+          setBatsmanOut(striker);
           if (chooseNextBatsmanSide) {
             if (chooseNextBatsmanSide === 'striker') {
-              // Move the current striker to firstInnings players
-              await movePlayer(striker.playerId);
+              // remove striker status from the player
+              await removeBatsmanStatus(STRIKER, wicketType);
               // Choose next batsman can be either string or Object.
               await addStriker(chooseNextBatsman);
             } else if (chooseNextBatsmanSide === 'nonStriker') {
-              // The batsman cross the half pitch and caught out.
-              // So, we need to swap the striker with non striker
-              // and add the new batsman to non striker end.
-              await movePlayer(striker.playerId).then(async () => {
-                await outNonStrikerActionOrder(chooseNextBatsman);
-              });
+              // remove non-striker status from the player.
+              await removeBatsmanStatus(NON_STRIKER, wicketType);
+              await outNonStrikerActionOrder(chooseNextBatsman);
             }
             await addWicket(CAUGHT_OUT);
             setWicketModal(true);
@@ -105,14 +106,16 @@ class WicketModal extends React.Component {
           break;
         case RUN_OUT:
           if (runOutCheckedValue) {
+            const outRoleType =
+              runOutCheckedValue === striker.playerId ? STRIKER : NON_STRIKER;
             const outRole =
-              runOutCheckedValue === striker.name ? striker : nonStriker;
+              runOutCheckedValue === striker.playerId ? striker : nonStriker;
             // Move the player who got out to the pavilion
-            this.setState({ currentBatsmanWhoGotOut: outRole });
+            setBatsmanOut(outRole);
             // Add runs to the "outrole object and total score card"
             // before moving the player to pavilion.
             await addRunsToStrikerBeforeRunout(this.state.runsScoredOnRunOut);
-            await movePlayer(outRole.playerId);
+            await removeBatsmanStatus(outRoleType, wicketType);
             if (chooseNextBatsmanSide) {
               if (
                 outRole.name === striker.name &&
@@ -154,10 +157,12 @@ class WicketModal extends React.Component {
           // Do not add any runs.
           // Just replace the player.
           if (runOutCheckedValue) {
+            const outRoleType =
+              runOutCheckedValue === striker.playerId ? STRIKER : NON_STRIKER;
             const outRole =
-              runOutCheckedValue === striker.name ? striker : nonStriker;
-            this.setState({ currentBatsmanWhoGotOut: outRole });
-            await movePlayer(outRole.playerId);
+              runOutCheckedValue === striker.playerId ? striker : nonStriker;
+            setBatsmanOut(outRole);
+            await removeBatsmanStatus(outRoleType, wicketType);
             if (outRole.playerId === striker.playerId)
               await addStriker(chooseNextBatsman);
             else {
@@ -173,15 +178,15 @@ class WicketModal extends React.Component {
         case HIT_WICKET:
         case LBW:
         case STUMP_OUT:
-          this.setState({ currentBatsmanWhoGotOut: striker });
-          await movePlayer(striker.playerId);
+          setBatsmanOut(striker);
+          await removeBatsmanStatus(STRIKER, wicketType);
           await addStriker(chooseNextBatsman);
-          await addWicket(STUMP_OUT);
+          await addWicket(wicketType);
           setWicketModal(true);
           setBatsmanOut(null);
           break;
         default:
-          this.setState({ currentBatsmanWhoGotOut: striker });
+          setBatsmanOut(striker);
           await addWicket(STUMP_OUT);
           await swapStriker();
           this.setState({ chooseNextBatsman: null });
@@ -217,12 +222,10 @@ class WicketModal extends React.Component {
     else return this.renderUnpredictedContent(wicketType);
   };
 
-  handleChecked = async (e) => {
+  handleChecked = async (e, player) => {
     const { striker, nonStriker, setBatsmanOut } = this.props;
-    this.setState({ runOutCheckedValue: e.target.textContent });
-
-    let outObject =
-      e.target.textContent === striker.name ? striker : nonStriker;
+    this.setState({ runOutCheckedValue: player.playerId });
+    let outObject = player.playerId === striker.playerId ? striker : nonStriker;
     setBatsmanOut(outObject);
   };
 
@@ -235,10 +238,10 @@ class WicketModal extends React.Component {
     const { striker, nonStriker } = this.props;
     const { runOutCheckedValue } = this.state;
     const strikerClassName = `ui button ${
-      striker.name === runOutCheckedValue ? 'blue active' : ''
+      striker?.playerId === runOutCheckedValue ? 'blue active' : ''
     }`;
     const nonStrikerClassName = `ui button ${
-      nonStriker.name === runOutCheckedValue ? 'blue active' : ''
+      nonStriker?.playerId === runOutCheckedValue ? 'blue active' : ''
     }`;
     return (
       <Content className='ui divided middle selection list'>
@@ -248,16 +251,16 @@ class WicketModal extends React.Component {
         <RadioWrapper className='ui buttons'>
           <RadioLabel
             className={strikerClassName}
-            value={striker.name}
-            onClick={(e) => this.handleChecked(e)}>
-            {striker.name}
+            value={striker?.name}
+            onClick={(e) => this.handleChecked(e, striker)}>
+            {striker?.name}
           </RadioLabel>
           <div className='or'>or</div>
           <RadioLabel
             className={nonStrikerClassName}
-            value={nonStriker.name}
-            onClick={(e) => this.handleChecked(e)}>
-            {nonStriker.name}
+            value={nonStriker?.name}
+            onClick={(e) => this.handleChecked(e, nonStriker)}>
+            {nonStriker?.name}
           </RadioLabel>
         </RadioWrapper>
         {runOutCheckedValue ? this.renderCommonContent(wicketType) : ''}
@@ -266,12 +269,15 @@ class WicketModal extends React.Component {
   };
 
   renderCommonContent = (wicketType) => {
-    let { batsManWhoGotOut, striker } = this.props;
-    if (!batsManWhoGotOut) batsManWhoGotOut = striker;
+    let { striker, bowler, currentBatsmanWhoGotOut } = this.props;
+    if (!currentBatsmanWhoGotOut) setBatsmanOut(striker);
+    const outBatsman = currentBatsmanWhoGotOut
+      ? currentBatsmanWhoGotOut
+      : striker;
     const {
       name,
       batting: { runs, balls, fours, sixes },
-    } = batsManWhoGotOut;
+    } = outBatsman;
     const {
       teamScore,
       teamWickets,
@@ -283,22 +289,34 @@ class WicketModal extends React.Component {
           <span className='name'>{name}</span>
           <span className='score'>
             <span className='runs'>{runs}</span>
-            <span className='balls'>({balls + 1})</span>
+            {wicketType === RETIRED_HURT ? (
+              <span className='balls'>({balls})</span>
+            ) : (
+              <span className='balls'>({balls + 1})</span>
+            )}
           </span>
           <span className='bowler'>
             <span className='wicket-type'>b</span>
-            <span className='bowler-name'>Bowler</span>
+            <span className='bowler-name'>{bowler.name}</span>
           </span>
-          <span className='fow'>
-            fow: {teamScore}/{teamWickets}
-          </span>
+          {wicketType !== RETIRED_HURT ? (
+            <span className='fow'>
+              fow: {teamScore}/{teamWickets}
+            </span>
+          ) : (
+            <React.Fragment></React.Fragment>
+          )}
         </BastmanHeader>
         <StatsHeader>
           <span className='boundaries'>
             <span className='fours'>Fours: {fours}</span>
             <span className='sixes'>Sixes: {sixes}</span>
           </span>
-          <span>SR: {getStrikeRate(runs, balls + 1)}</span>
+          {wicketType === RETIRED_HURT ? (
+            <span>SR: {getStrikeRate(runs, balls) || 0}</span>
+          ) : (
+            <span>SR: {getStrikeRate(runs, balls + 1) || 0}</span>
+          )}
         </StatsHeader>
         <NextBatsman>
           <div className='ui divider'></div>
@@ -345,12 +363,19 @@ class WicketModal extends React.Component {
                   label='Next Batsman'
                   placeholder='Enter new or select batsman'
                   options={players.filter((player) => {
-                    const outBatsman = this.props.batsManWhoGotOut
-                      ? this.props.batsManWhoGotOut
+                    const outBatsman = this.props.currentBatsmanWhoGotOut
+                      ? this.props.currentBatsmanWhoGotOut
                       : striker;
                     return (
-                      player.batting.status !== 'OUT' &&
-                      player.playerId !== outBatsman.playerId
+                      player.status !== STRIKER &&
+                      player.playerId !== outBatsman.playerId &&
+                      player.status !== NON_STRIKER &&
+                      player.status !== CAUGHT_OUT &&
+                      player.status !== RUN_OUT &&
+                      player.status !== BOWLED &&
+                      player.status !== HIT_WICKET &&
+                      player.status !== LBW &&
+                      player.status !== STUMP_OUT
                     );
                   })}
                   value={
@@ -454,9 +479,11 @@ const mapStateToProps = createStructuredSelector({
   wicketType: selectWicketType,
   striker: selectStriker,
   nonStriker: selectNonStriker,
+  bowler: selectBowler,
   teamScore: selectBattingTeamScore,
   teamWickets: selectBattingTeamWickets,
   currentBattingTeam: selectBattingTeam,
+  currentBatsmanWhoGotOut: selectBastmanWhoGotOut,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -471,7 +498,8 @@ const mapDispatchToProps = (dispatch) => ({
   setWicketModal: (val) => dispatch(setWicketModal(val)),
   swapStriker: () => dispatch(swapStriker()),
   swapStrikerForce: () => dispatch(swapStrikerForce()),
-  movePlayer: (id) => dispatch(movePlayer(id)),
+  removeBatsmanStatus: (batsmanType, wicketType) =>
+    dispatch(removeBatsmanStatus(batsmanType, wicketType)),
   addStriker: (name) => dispatch(addStriker(name)),
   addRunsToStrikerBeforeRunout: (runs) => dispatch(addRunToPlayer(runs)),
   addNonStriker: (name) => dispatch(addNonStriker(name)),

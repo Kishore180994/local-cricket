@@ -26,14 +26,18 @@ export const BATSMAN_STRIKER = 'BATSMAN_STRIKER';
 export const SWITCH_STRIKER = 'SWITCH_STRIKER';
 export const SWITCH_TEAM = 'SWITCH_TEAM';
 
-// Batsmen status
-export const STRIKER = 'striker';
-export const NON_STRIKER = 'nonstriker';
+// Player status
+export const STRIKER = 'STRIKER';
+export const NON_STRIKER = 'NON_STRIKER';
+export const BOWLER = 'BOWLER';
+export const NON_BOWLER = 'NON_BOWLER';
 export const OUT = 'OUT';
 export const NOT_OUT = 'NOT_OUT';
 export const BENCH = 'BENCH';
 export const SWAP_STRIKER = 'SWAP_STRIKER';
 export const SWAP_STRIKER_FORCE = 'SWAP_STRIKER_FORCE';
+export const REMOVE_BOWLER_STATUS = 'REMOVE_BOWLER_STATUS';
+export const REMOVE_BATSMAN_STATUS = 'REMOVE_BATSMAN_STATUS';
 
 export const WICKET_MODAL = 'WICKET_MODAL';
 export const BOWLER_MODAL = 'BOWLER_MODAL';

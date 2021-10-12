@@ -62,23 +62,23 @@ class PlayScoreCard extends React.Component {
                   <div className='ui middle aligned divided list'>
                     <div className='item'>
                       <div className='right floated content'>
-                        {striker.batting.runs || 0} (
-                        {striker.batting.balls || 0} balls)
+                        {striker?.batting?.runs || 0} (
+                        {striker?.batting?.balls || 0} balls)
                       </div>
                       <i className='user circle icon'></i>
                       <div
                         className='content'
                         style={{ fontWeight: 'bolder', fontSize: '1.2rem' }}>
-                        {striker.name}
+                        {striker?.name}
                       </div>
                     </div>
                     <div className='item'>
                       <div className='right floated content'>
-                        {nonStriker.batting.runs || 0} (
-                        {nonStriker.batting.balls || 0} balls)
+                        {nonStriker?.batting?.runs || 0} (
+                        {nonStriker?.batting?.balls || 0} balls)
                       </div>
                       <i className='user circle icon'></i>
-                      <div className='content'>{nonStriker.name}</div>
+                      <div className='content'>{nonStriker?.name}</div>
                     </div>
                   </div>
                 </ScoreColumn>
@@ -91,15 +91,15 @@ class PlayScoreCard extends React.Component {
                   <div className='ui middle aligned divided list'>
                     <div className='item'>
                       <div className='right floated content'>
-                        {`${bowler.bowling.runs || 0}/${
-                          bowler.bowling.wickets || 0
+                        {`${bowler?.bowling?.runs || 0}/${
+                          bowler?.bowling?.wickets || 0
                         } `}
                         <div className='ui label tiny teal tag '>
-                          {renderOvers('Overs', bowler.bowling.balls || 0)}
+                          {renderOvers('Overs', bowler?.bowling?.balls || 0)}
                         </div>
                       </div>
                       <i className='user circle icon'></i>
-                      <div className='content'>{bowler.name}</div>
+                      <div className='content'>{bowler?.name}</div>
                     </div>
                   </div>
                 </ScoreColumn>

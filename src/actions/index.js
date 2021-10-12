@@ -25,6 +25,8 @@ import {
   SWITCH_INNINGS,
   CLEAR_UNDO_HISTORY,
   OVERS_DONE,
+  REMOVE_BOWLER_STATUS,
+  REMOVE_BATSMAN_STATUS,
 } from './types';
 
 export const signIn = (userId) => {
@@ -155,6 +157,21 @@ export const addNonStriker = (name) => async (dispatch) => {
   dispatch({
     type: ADD_NON_STRIKER,
     payload: name,
+  });
+};
+
+export const removeBatsmanStatus =
+  (batsmanType, wicketType) => async (dispatch) => {
+    dispatch({
+      type: REMOVE_BATSMAN_STATUS,
+      batsmanType: batsmanType, // can be either striker or non-striker
+      wicketType: wicketType,
+    });
+  };
+
+export const removeBowlerStatus = () => async (dispatch) => {
+  dispatch({
+    type: REMOVE_BOWLER_STATUS,
   });
 };
 

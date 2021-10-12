@@ -5,7 +5,7 @@ import RenderInput from '../render-input/render-input.component';
 
 import {
   addBowler,
-  moveBowler,
+  removeBowlerStatus,
   setBowlerModal,
   setEndOfInnigsModal,
 } from '../../actions';
@@ -25,8 +25,8 @@ class BowlerModal extends React.Component {
 
   handleSubmit = () => {
     //Move the current bowler to the secondInnings
-    const { moveBowler, addBowler } = this.props;
-    moveBowler();
+    const { addBowler, removeBowlerStatus } = this.props;
+    removeBowlerStatus();
     if (this.state.bowlerObject) addBowler(this.state.bowlerObject);
     else if (this.state.bowler) addBowler(this.state.bowler);
     else console.log('Check bowler model component');
@@ -145,7 +145,7 @@ const mapStateToProps = createStructuredSelector({
 
 export default connect(mapStateToProps, {
   setBowlerModal,
-  moveBowler,
   addBowler,
+  removeBowlerStatus,
   setEndOfInnigsModal,
 })(BowlerModal);
