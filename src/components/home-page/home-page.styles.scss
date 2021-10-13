@@ -8,7 +8,7 @@
     border: 1px solid white;
     border-radius: 50%;
     transform-style: preserve-3d;
-    animation: ball-roll 2s ease-out 1s forwards infinite;
+    animation: ball-roll 4s ease-out 0s forwards infinite;
     &::before{
         display: block;
         content: '';
@@ -17,6 +17,10 @@
         border-left: 1px dashed white;
         border-right: 1px dashed white;
         transform: translateX(20px);
+    }
+
+    @media(min-width:750px) {
+        animation: ball-roll-big-screens 5s ease-out 0s forwards infinite;
     }
 }
 
@@ -200,4 +204,13 @@
       100%{
         transform: translateX(-110vw) rotateZ(-720deg);
       }
-  }
+  } 
+
+  @keyframes ball-roll-big-screens{
+    0%{
+        transform: translateX(20px) rotateZ(0deg);
+    }
+    100%{
+      transform: translateX(-110vw) rotateZ(-1640deg);
+    }
+} 
