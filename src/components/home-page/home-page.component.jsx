@@ -26,6 +26,20 @@ const HomePage = () => {
           </span>
         </Link>
       </div>
+      <label
+        style={{
+          position: 'absolute',
+          height: '100px',
+          color: 'white',
+          fontSize: '0.6rem',
+          top: 0,
+        }}>
+        No need for fights. This App is for you.
+      </label>
+      <div className='blocks a'></div>
+      <div className='blocks c'></div>
+      <div className='blocks b'></div>
+      <div className='cricket-ball'></div>
     </div>
   );
 };

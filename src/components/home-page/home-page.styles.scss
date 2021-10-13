@@ -1,5 +1,79 @@
+.cricket-ball{
+    position: absolute;
+    background: black;
+    bottom: 0;
+    right: 0;
+    height: 50px;
+    width: 50px;
+    border: 1px solid white;
+    border-radius: 50%;
+    transform-style: preserve-3d;
+    animation: ball-roll 2s ease-out 1s forwards infinite;
+    &::before{
+        display: block;
+        content: '';
+        height: 50px;
+        width: 10px;
+        border-left: 1px dashed white;
+        border-right: 1px dashed white;
+        transform: translateX(20px);
+    }
+}
+
+.blocks{
+    position: absolute;
+    background: black;
+    &::after{
+        content: '';
+        z-index: -1;
+        display: block;
+        transform: translateZ(-1px) scaleX(1.02) scaleY(1.02);
+        background: linear-gradient(315deg, #537895 0%, #09203f 74%);
+    }
+}
+
+.a{
+    bottom: -20px;
+    left: 10px;
+    height: 100px;
+    width: 50px;
+    border: 1px solid white;
+    transform: rotateZ(150deg);
+    &::after{
+        height: 100px;
+        width: 50px; 
+    }
+}
+.b{
+    bottom: -10px;
+    left: 60px;
+    height: 160px;
+    width: 70px;
+    transform: rotateZ(0deg);
+    transform-style: preserve-3d;
+    &::after{
+        height: 160px;
+        width: 70px;   
+    }
+}
+.c{
+    bottom: -20px;
+    left: 120px;
+    height: 150px;
+    width: 40px;
+    border-top: 180px solid rgb(0, 66, 128);
+    border-left: 90px solid transparent;
+    border-right: 90px solid transparent; 
+    transform: rotateZ(60deg) translateX(100px);
+    transform-style: preserve-3d;
+    &::after{
+        height: 150px;
+        width: 40px;
+    }
+}
 .my-container {
     display: flex;
+    position: relative;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -8,6 +82,7 @@
     height: 100vh;
     width: 100%;
     background-color: #000;
+    z-index: 1;
     .header{
         .app-name{
             font-family:  -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -58,7 +133,7 @@
     align-content: center;
     text-align: center;
     width: 60%;
-    height: 3.5rem;
+    height: 3.6rem;
     overflow: hidden;
     background-color: #ffffff;
     background: linear-gradient(315deg, #537895 0%, #09203f 74%);
@@ -116,4 +191,13 @@
     50% {
       background-position: 890px 100px;
     }
+  }
+
+  @keyframes ball-roll{
+      0%{
+          transform: translateX(20px) rotateZ(0deg);
+      }
+      100%{
+        transform: translateX(-110vw) rotateZ(-720deg);
+      }
   }
