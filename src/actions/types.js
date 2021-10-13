@@ -48,16 +48,17 @@ export const MOVE_BOWLER = 'MOVE_BOWLER';
 
 export const SWITCH_INNINGS = 'SWITCH_INNINGS';
 export const CLEAR_UNDO_HISTORY = 'CLEAR_UNDO_HISTORY';
+export const CLEAR_STATE = 'CLEAR_STATE';
 
 export const OVERS_DONE = 'OVERS_DONE';
 // WICKET TYPE
-export const BOWLED = 'BOWLED!!!';
-export const CAUGHT_OUT = 'CAUGHT OUT!!!';
-export const HIT_WICKET = 'HIT WICKET!!!';
-export const LBW = 'L.B.W!!!';
-export const RUN_OUT = 'RUN OUT!!!';
-export const STUMP_OUT = 'STUMP OUT!!!';
-export const RETIRED_HURT = 'RETIRED HURT!!!';
+export const BOWLED = 'Bowled';
+export const CAUGHT_OUT = 'Caught out';
+export const HIT_WICKET = 'Hit Wicket';
+export const LBW = 'LBW';
+export const RUN_OUT = 'Run out';
+export const STUMP_OUT = 'Stump out';
+export const RETIRED_HURT = 'Retired hurt';
 
 export const OUT_BATSMAN = 'OUT_BATSMAN';
 export const ADD_RUNS_TO_PLAYER = 'ADD_RUNS_TO_PLAYER';

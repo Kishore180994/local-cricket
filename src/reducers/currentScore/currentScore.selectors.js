@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 import { BOWLER, NON_STRIKER, STRIKER } from '../../actions/types';
 
-const selectCurrentScore = (state) => state.curScore.present;
+export const selectCurrentScore = (state) => state.curScore.present;
 
 export const selectTeam1 = createSelector(
   [selectCurrentScore],

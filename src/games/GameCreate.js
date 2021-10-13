@@ -7,6 +7,11 @@ import MatchSettings from './MatchSettings';
 import history from '../history';
 
 class GameCreate extends Component {
+  componentDidMount() {
+    window.addEventListener('popstate', () => {
+      history.go(1);
+    });
+  }
   onFormSubmit = async (formValues) => {
     const matchId =
       Math.random().toString(36).substring(2, 15) +

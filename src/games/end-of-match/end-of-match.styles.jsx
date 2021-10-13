@@ -67,7 +67,43 @@ export const SubSection = styled.div`
       Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   }
 
+  @media ${device.mobileXS} {
+    flex-direction: column;
+    .stats {
+      width: 100%;
+      justify-content: center;
+    }
+    .innings-text {
+      width: 100%;
+      margin: 1em 0;
+    }
+  }
+
+  @media ${device.mobileS} {
+    flex-direction: column;
+    .stats {
+      width: 100%;
+      justify-content: center;
+    }
+    .innings-text {
+      width: 100%;
+      margin: 1em 0;
+    }
+  }
+
   @media ${device.mobileM} {
+    flex-direction: column;
+    .stats {
+      width: 100%;
+      justify-content: center;
+    }
+    .innings-text {
+      width: 100%;
+      margin: 1em 0;
+    }
+  }
+
+  @media ${device.laptop} {
     flex-direction: column;
     .stats {
       width: 60%;

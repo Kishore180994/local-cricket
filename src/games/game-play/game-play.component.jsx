@@ -1,4 +1,5 @@
 import '../GameView.scss';
+import history from '../../history';
 import React, { Component } from 'react';
 import { ActionCreators as UndoActionCreators } from 'redux-undo';
 import { connect } from 'react-redux';
@@ -65,6 +66,9 @@ class GamePlay extends Component {
 
   componentDidMount() {
     window.addEventListener('scroll', this.updateScroll);
+    window.addEventListener('popstate', () => {
+      history.go(1);
+    });
   }
 
   componentWillUnmount() {

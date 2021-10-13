@@ -19,6 +19,7 @@ import {
   REMOVE_BOWLER_STATUS,
   NON_BOWLER,
   REMOVE_BATSMAN_STATUS,
+  CLEAR_STATE,
 } from '../../actions/types';
 import { TEAM_STATE } from '../../states';
 import {
@@ -118,6 +119,9 @@ const currentScoreReducer = (state = INITIAL_STATE, action) => {
 
     case SWITCH_INNINGS:
       return switchInnings(newState);
+
+    case CLEAR_STATE:
+      return INITIAL_STATE;
 
     default:
       return state;

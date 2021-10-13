@@ -24,8 +24,17 @@ const FullScoreCard = ({
 }) => {
   return (
     <ScoreCardContainer>
-      <Accordion innings={firstInnings} />
-      <Accordion innings={secondInnings} />
+      <Accordion
+        firstInnings={firstInnings}
+        secondInnings={secondInnings}
+        headerText='First Innings'
+      />
+      <Accordion
+        firstInnings={secondInnings}
+        secondInnings={firstInnings}
+        headerText='Second Innings'
+        style={{ marginBottom: '0.5em' }}
+      />
     </ScoreCardContainer>
   );
 };

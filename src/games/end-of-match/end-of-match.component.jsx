@@ -1,10 +1,13 @@
 import React from 'react';
+import history from '../../history.js';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
-import { clearUndoHistory, setEndOfMatchModal } from '../../actions';
+import { clearState, clearUndoHistory } from '../../actions';
 import Modal from '../../Modal';
-import { selectMatchId } from '../../reducers/currentScore/currentScore.selectors';
-import { convertBallsToOvers, convertOversToBalls } from '../../util';
+import {
+  selectCurrentScore,
+  selectMatchId,
+} from '../../reducers/currentScore/currentScore.selectors';
 import { MainContent, MainSection, SubSection } from './end-of-match.styles';
 import {
   selectFirstInnings,
@@ -18,7 +21,8 @@ import { Link } from 'react-router-dom';
 class EndOfMatch extends React.Component {
   handleSubmit = (e) => {
     e.stopPropagation();
-    this.props.setEOIHidden(true);
+    history.replace(`/games/create`);
+    this.props.clearState();
     this.props.clearUndoHistory();
   };
   renderContent = () => {
@@ -111,6 +115,7 @@ class EndOfMatch extends React.Component {
 }
 
 const mapStateToProps = createStructuredSelector({
+  curScore: selectCurrentScore,
   matchId: selectMatchId,
   firstInnings: selectFirstInnings,
   secondInnings: selectSecondInnings,
@@ -120,6 +125,7 @@ const mapStateToProps = createStructuredSelector({
 
 const mapDispatchToProps = (dispatch) => ({
   clearUndoHistory: () => dispatch(clearUndoHistory()),
+  clearState: () => dispatch(clearState()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(EndOfMatch);

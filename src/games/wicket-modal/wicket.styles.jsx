@@ -97,7 +97,7 @@ export const NextBatsman = styled.div`
 `;
 
 export const Header = styled.div`
-  font-size: 3vw;
+  font-size: 2em;
   color: black;
   -webkit-text-stroke: 2px red;
   -webkit-text-fill-color: white;

@@ -28,6 +28,7 @@ import {
   OVERS_DONE,
   REMOVE_BOWLER_STATUS,
   REMOVE_BATSMAN_STATUS,
+  CLEAR_STATE,
 } from './types';
 
 export const signIn = (userId) => {
@@ -246,5 +247,11 @@ export const clearUndoHistory = () => async (dispatch) => {
 export const oversFinished = () => async (dispatch) => {
   dispatch({
     type: OVERS_DONE,
+  });
+};
+
+export const clearState = () => async (dispatch) => {
+  dispatch({
+    type: CLEAR_STATE,
   });
 };

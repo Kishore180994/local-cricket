@@ -14,23 +14,13 @@ class Accordion extends React.Component {
   }
 
   topTwoPlayers = () => {
-    const {
-      innings: { players },
-    } = this.props;
+    const { firstInnings } = this.props;
     this.setState({
-      topTwoPlayers: trimObjectToTwo([...players]),
+      topTwoPlayers: trimObjectToTwo([...firstInnings.players]),
     });
   };
   render() {
-    const {
-      innings: {
-        name,
-        toss,
-        choose,
-        players,
-        stats: { totalRuns, totalWickets, totalBalls, thisOver },
-      },
-    } = this.props;
+    const { firstInnings, secondInnings, headerText } = this.props;
     return (
       <div className='scorecard-container'>
         <div
@@ -41,16 +31,22 @@ class Accordion extends React.Component {
           }}>
           <div className='skew-back'>
             {/* <i className='angle right icon'></i> */}
-            <label className='heading'>{'First Innings'}</label>
-            <label className='sub-heading'>Click to view full score card</label>
+            <label className='heading'>{headerText}</label>
+            <label className='sub-heading'>
+              {this.state.open
+                ? 'Click to return to summary'
+                : 'Click to view full score card'}
+            </label>
           </div>
           <div className='score-overs'>
             <div className='score'>
-              {totalRuns}/{totalWickets} <label className='static'>score</label>
+              {firstInnings.stats.totalRuns}/{firstInnings.stats.totalWickets}{' '}
+              <label className='static'>
+                overs: {convertBallsToOvers(firstInnings.stats.totalBalls)}
+              </label>
             </div>
             <div className='overs'>
-              {convertBallsToOvers(totalBalls)}{' '}
-              <label className='static'>overs</label>
+              <label className='static'>Extras: 5</label>
             </div>
           </div>
         </div>
@@ -59,7 +55,7 @@ class Accordion extends React.Component {
             <div className='container'>
               <div className='batting'>
                 <label className='team-name'>
-                  {name}
+                  {firstInnings.name}
                   <label className='team-name-sub'>(batting)</label>
                 </label>
                 {this.state.topTwoPlayers.map((player) => (
@@ -88,21 +84,22 @@ class Accordion extends React.Component {
           <div className='content'>
             <div className='batting'>
               <div className='team-name'>
-                <label className='main-label'>{name}</label>
+                <label className='main-label'>{firstInnings.name} </label>
+                <label className='sub-label'>(batting)</label>
               </div>
               <div className='score'>
                 <div className='ui middle aligned divided list'>
-                  {[...players]
+                  {firstInnings.players
                     .sort((a, b) => a.order - b.order)
                     .map((player) => {
                       const {
-                        batting: { runs, balls, status },
+                        batting: { runs, balls },
                       } = player;
                       return (
                         <div className='item' key={player.playerId}>
                           <div className='player'>
                             <div className='player-name'>{player.name}</div>
-                            <div className='player-status'>{status}</div>
+                            {/* <div className='player-status'>{player.status}</div> */}
                           </div>
                           <div className='player-score'>
                             {runs}({balls})
@@ -113,7 +110,34 @@ class Accordion extends React.Component {
                 </div>
               </div>
             </div>
-            <div className='bowling'></div>
+            <div className='batting'>
+              <div className='team-name'>
+                <label className='main-label'>{secondInnings.name} </label>
+                <label className='sub-label'>(bowling)</label>
+              </div>
+              <div className='score'>
+                <div className='ui middle aligned divided list'>
+                  {[...secondInnings.players]
+                    .sort((a, b) => a.order - b.order)
+                    .map((player) =>
+                      player.bowling.balls ? (
+                        <div className='item' key={player.playerId}>
+                          <div className='player'>
+                            <div className='player-name'>{player.name}</div>
+                            <div className='player-status'>
+                              {convertBallsToOvers(player.bowling.balls)}{' '}
+                              over(s)
+                            </div>
+                          </div>
+                          <div className='player-score'>
+                            {player.bowling.runs}/{player.bowling.wickets}
+                          </div>
+                        </div>
+                      ) : null
+                    )}
+                </div>
+              </div>
+            </div>
           </div>
         ) : null}
       </div>
