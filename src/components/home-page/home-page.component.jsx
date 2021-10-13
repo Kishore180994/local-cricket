@@ -34,7 +34,7 @@ const HomePage = () => {
           fontSize: '0.6rem',
           top: 0,
         }}>
-        No need for fights. This App is for you.
+        *Use mobile phone for best experience*
       </label>
       <div className='blocks a'></div>
       <div className='blocks c'></div>
